@@ -98,7 +98,7 @@ app.post('/upload-profile', upload.single('profileImage'), async (req, res) => {
     }
 
     const _id = req.body._id;
-    const filePath = req.file.filename;
+    const filePath = req.file.path;
 
     try {
         // Use await and new mongoose.Types.ObjectId
@@ -378,7 +378,7 @@ app.put('/profile', authenticate, upload.single('profileImage'), async (req, res
 
         // Check if profile image is uploaded, else set default image
         if (req.file) {
-            updates.profileImage = req.file.filename;
+            updates.profileImage = req.file.path;
         } else {
             updates.profileImage = '../assets/img/rb_859.png'
         }
@@ -1250,8 +1250,11 @@ app.patch('/api/employee/:id',async (req,res) => {
 // const router = require('./routers/index')
 
 // router.use('/api', router)
+app.get('/', (req, res) => {
+    res.send('<h1>Working Fine</h1>');
+});
+
 
 app.listen(8000, () => {
     console.log('Server connected on port localhost:8000');
-    // console.log('Server connected on port localhost:8000');
 });
