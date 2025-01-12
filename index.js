@@ -380,16 +380,12 @@ app.put('/profile', authenticate, upload.single('profileImage'), async (req, res
         if (phoneNo) updates.phoneNo = phoneNo;
 
         // Check if profile image is uploaded, else set default image
-        // if (req.file) {
-        //     updates.profileImage = req.file.path;
-        // } else {
-        //     updates.profileImage = '../assets/img/rb_859.png'
-        // }
         if (req.file) {
-            updates.profileImage = path.join(__dirname, 'uploads', req.file.filename); 
+            updates.profileImage = req.file.path;
         } else {
-            updates.profileImage = '/assets/img/default_profile.png'; 
+            updates.profileImage = '../assets/img/rb_859.png'
         }
+
         // Update the user's information in the database
         const updatedUser = await User.findByIdAndUpdate(
             req.user.id,
