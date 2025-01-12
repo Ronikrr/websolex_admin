@@ -9,8 +9,8 @@ const fs = require("fs");
 require('dotenv').config();
 const app = express();
 const cookieParser = require('cookie-parser');
-const secretKey = crypto.randomBytes(10).toString('hex');
-console.log(secretKey)
+// const secretKey = crypto.randomBytes(10).toString('hex');
+// console.log(secretKey)
 // const teamRoutes = require('./teampage')
 app.use(cors());
 app.use(bodyParser.json());
@@ -51,8 +51,10 @@ const authenticate = (req, res, next) => {
         return res.status(401).json({ message: 'No token provided.' });
     }
 
+    const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || "Websolex@admin_JWTSECRETTOKEN"
+
     try {
-        const decoded = jwt.verify(token, secretKey);
+        const decoded = jwt.verify(token, JWT_SECRET_KEY);
         console.log('Token decoded successfully:', decoded);
         req.user = decoded; // Attach the decoded user info
         next();
@@ -292,7 +294,7 @@ app.post('/login', async (req, res) => {
 
         // Special case for admin login
         if (email === 'admin@gmail.com' && password === 'admin@123') {
-            const token = jwt.sign({ id: user._id, email: user.email, role: 'admin' }, secretKey, { expiresIn: '1h' });
+            const token = jwt.sign({ id: user._id, email: user.email, role: 'admin' }, JWT_SECRET_KEY, { expiresIn: '1h' });
             console.log(token)
             return res.json({ message: 'Admin login successful', token });
         }
@@ -305,7 +307,7 @@ app.post('/login', async (req, res) => {
             return res.status(400).json({ message: 'Invalid password' });
         }
 
-        const token = jwt.sign({ id: user._id, email: user.email }, secretKey, { expiresIn: '1h' });
+        const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET_KEY, { expiresIn: '1h' });
         res.json({ message: 'Login successful', token });
     } catch (error) {
         console.error("Error during login:", error);
