@@ -17,6 +17,8 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 const path = require("path");
 
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || "Websolex@admin_JWTSECRETTOKEN"
+
 
 
 mongoose.connect('mongodb+srv://ronikrameshbhaigorasiya:ksVCCo0ZGKAIz5pV@cluster0.3hzbj.mongodb.net/websolexadmin')
@@ -51,7 +53,6 @@ const authenticate = (req, res, next) => {
         return res.status(401).json({ message: 'No token provided.' });
     }
 
-    const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || "Websolex@admin_JWTSECRETTOKEN"
 
     try {
         const decoded = jwt.verify(token, JWT_SECRET_KEY);
