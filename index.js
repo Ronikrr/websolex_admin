@@ -391,8 +391,8 @@ app.put('/profile', authenticate, upload.single('profileImage'), async (req, res
             req.user.id,
             { $set: updates },
             {
-                new: true, // Return the updated document
-                runValidators: true, // Validate fields before updating
+                new: true,
+                runValidators: true,
             }
         );
 
