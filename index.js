@@ -19,9 +19,10 @@ const path = require("path");
 
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || "Websolex@admin_JWTSECRETTOKEN"
 
+const MongoDB = process.env.MONGO_URI
+const PORT = process.env.PORT
 
-
-mongoose.connect('mongodb+srv://ronikrameshbhaigorasiya:ksVCCo0ZGKAIz5pV@cluster0.3hzbj.mongodb.net/websolexadmin')
+mongoose.connect(MongoDB)
     .then(() => {
         console.log('MongoDB connected successfully!');
     })
@@ -78,17 +79,17 @@ app.use((err, req, res, next) => {
 });
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, './uploads'); // Directory to store uploaded files
+        cb(null, 'uploads/'); 
     },
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + path.extname(file.originalname)); // Unique file name
+        cb(null, uniqueSuffix + path.extname(file.originalname));
     },
 });
 const upload = multer({ storage });
 
-// app.use('/uploads', express.static('uploads'));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 app.post('/upload-profile', upload.single('profileImage'), async (req, res) => {
@@ -1309,6 +1310,6 @@ app.get('/', (req, res) => {
 });
 
 
-app.listen(8000, () => {
+app.listen(PORT, () => {
     console.log('Server connected on port localhost:8000');
 });
