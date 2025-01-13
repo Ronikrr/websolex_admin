@@ -8,7 +8,6 @@ const multer = require("multer");
 const fs = require("fs");
 require('dotenv').config();
 const app = express();
-const FormData = require('form-data');
 const cookieParser = require('cookie-parser');
 // const secretKey = crypto.randomBytes(10).toString('hex');
 // console.log(secretKey)
@@ -367,145 +366,26 @@ app.get('/profile', authenticate, async (req, res) => {
 
 //////////////////////////////////////////////   view couts
 
-// app.put('/profile', authenticate, upload.single('profileImage'), async (req, res) => {
-//     console.log(req.body)
-//     console.log(req.file)
-//     try {
-//         const { email, username, phoneNo } = req.body;
-
-//         const updates = {};
-//         if (email) updates.email = email;
-//         if (username) updates.username = username;
-//         if (phoneNo) updates.phoneNo = phoneNo;
-//         if (req.file) {
-//             updates.profileImage = req.file.path;
-//         }
-//         const updatedUser = await User.findByIdAndUpdate(
-//             req.user.id,
-//             { $set: updates },
-//             {
-//                 new: true,
-//                 runValidators: true,
-//             }
-//         );
-
-//         if (!updatedUser) {
-//             return res.status(404).json({ message: "User not found." });
-//         }
-
-//         const userResponse = {
-//             id: updatedUser._id,
-//             name: updatedUser.name,
-//             username: updatedUser.username,
-//             email: updatedUser.email,
-//             phoneNo: updatedUser.phoneNo,
-//             profileImage: updatedUser.profileImage,
-//         };
-
-//         res.json({ message: "Profile updated successfully.", user: userResponse });
-//     } catch (error) {
-//         console.error("Error updating profile:", error);
-
-//         if (error.code === 11000) { // Handle unique constraint errors
-//             return res.status(400).json({ message: "Email must be unique." });
-//         }
-
-//         res.status(500).json({ message: "Internal server error." });
-//     }
-// });
-// app.put('/profile', authenticate, upload.single('profileImage'), async (req, res) => {
-//     console.log("Request body:", req.body);
-//     console.log("Uploaded file:", req.file.filename);
-
-//     try {
-//         if (!req.user || !req.user.id) {
-//             return res.status(401).json({ message: "Unauthorized: User not authenticated." });
-//         }
-
-//         const { email, username, phoneNo, profileImage } = req.body;
-
-//         const updates = {};
-//         if (email) updates.email = email;
-//         if (username) updates.username = username;
-//         if (phoneNo) updates.phoneNo = phoneNo;
-//         if (profileImage) {
-//             updates.profileImage = req.file.filename;
-//         }
-
-//         const updatedUser = await User.findByIdAndUpdate(
-//             req.user.id,
-//             { $set: updates },
-//             {
-//                 new: true,
-//                 runValidators: true,
-//             }
-//         );
-
-//         if (!updatedUser) {
-//             return res.status(404).json({ message: "User not found." });
-//         }
-//         const profileImageUrl = `http://websolex-admin.vercel.app/uploads/${updatedUser.profileImage}`;
-//         const userResponse = {
-//             id: updatedUser._id,
-//             name: updatedUser.name,
-//             username: updatedUser.username,
-//             email: updatedUser.email,
-//             phoneNo: updatedUser.phoneNo,
-//             profileImage: profileImageUrl,
-//         };
-
-//         res.json({ message: "Profile updated successfully.", user: userResponse });
-//     } catch (error) {
-//         console.error("Error updating profile:", error);
-
-//         if (error.code === 11000) {
-//             return res.status(400).json({ message: "Email must be unique." });
-//         }
-
-//         if (error.name === "ValidationError") {
-//             return res.status(400).json({ message: "Validation failed.", errors: error.errors });
-//         }
-
-//         res.status(500).json({ message: "Internal server error." });
-//     }
-// });
-
 app.put('/profile', authenticate, upload.single('profileImage'), async (req, res) => {
-    console.log("Request body:", req.body);
-    console.log("Uploaded file:", req.file);
-
+    console.log(req.body)
+    console.log(req.file)
     try {
-        if (!req.user || !req.user.id) {
-            return res.status(401).json({ message: "Unauthorized: User not authenticated." });
-        }
-
         const { email, username, phoneNo } = req.body;
 
         const updates = {};
         if (email) updates.email = email;
         if (username) updates.username = username;
         if (phoneNo) updates.phoneNo = phoneNo;
-
         if (req.file) {
-            // Create form data and append the file buffer for ImgBB
-            const form = new FormData();
-            form.append('image', req.file.buffer);
-
-            // Replace 'your-api-key' with your actual ImgBB API key
-            const response = await axios.post('https://api.imgbb.com/1/upload?key=e187c36b74d03da8d52035eeb0a3539f', form, {
-                headers: form.getHeaders(),
-            });
-
-            // Get the URL of the uploaded image
-            const profileImageUrl = response.data.data.url;
-            updates.profileImage = profileImageUrl; // Save the ImgBB URL to the database
+            updates.profileImage = req.file.path;
         }
-
-        // Update the user profile with the new data
         const updatedUser = await User.findByIdAndUpdate(
             req.user.id,
             { $set: updates },
-            { new: true, runValidators: true }
+            {
+                new: true,
+                runValidators: true,
+            }
         );
 
         if (!updatedUser) {
@@ -518,19 +398,15 @@ app.put('/profile', authenticate, upload.single('profileImage'), async (req, res
             username: updatedUser.username,
             email: updatedUser.email,
             phoneNo: updatedUser.phoneNo,
-            profileImage: updatedUser.profileImage, // ImgBB URL
+            profileImage: updatedUser.profileImage,
         };
 
         res.json({ message: "Profile updated successfully.", user: userResponse });
     } catch (error) {
         console.error("Error updating profile:", error);
 
-        if (error.code === 11000) {
+        if (error.code === 11000) { // Handle unique constraint errors
             return res.status(400).json({ message: "Email must be unique." });
-        }
-
-        if (error.name === "ValidationError") {
-            return res.status(400).json({ message: "Validation failed.", errors: error.errors });
         }
 
         res.status(500).json({ message: "Internal server error." });
