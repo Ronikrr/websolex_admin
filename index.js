@@ -89,7 +89,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 
-// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 app.post('/upload-profile', upload.single('profileImage'), async (req, res) => {
@@ -105,21 +105,18 @@ app.post('/upload-profile', upload.single('profileImage'), async (req, res) => {
     const filePath = req.file.path;
 
     try {
-        // Use await and new mongoose.Types.ObjectId
         console.log('User ID:', _id);
         const updatedUser = await User.findOneAndUpdate(
-            { _id: new mongoose.Types.ObjectId(_id) }, // Find user by _id
-            { profileImage: filePath },                 // Update the profileImage field
-            { new: true }                               // Return the updated user
+            { _id: new mongoose.Types.ObjectId(_id) },
+            { profileImage: filePath },
+            { new: true }                               
         );
 
-        console.log('User:', _id);  // This should show null if no user is found
+        console.log('User:', _id); 
         if (!updatedUser) {
             return res.status(404).json({ error: 'User not found' });
         }
-        // Add the profile image URL to the user object
         await updatedUser.save();
-        // Successfully uploaded the file
         res.json({ message: 'Profile image uploaded successfully' });
     } catch (err) {
         console.error(err);
