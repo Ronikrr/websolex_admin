@@ -8,6 +8,7 @@ const multer = require("multer");
 const fs = require("fs");
 require('dotenv').config();
 const app = express();
+const FormData = require('form-data');
 const cookieParser = require('cookie-parser');
 // const secretKey = crypto.randomBytes(10).toString('hex');
 // console.log(secretKey)
@@ -468,9 +469,10 @@ app.get('/profile', authenticate, async (req, res) => {
 //         res.status(500).json({ message: "Internal server error." });
 //     }
 // });
+
 app.put('/profile', authenticate, upload.single('profileImage'), async (req, res) => {
     console.log("Request body:", req.body);
-    console.log("Uploaded file:", req.file.filename);
+    console.log("Uploaded file:", req.file);
 
     try {
         if (!req.user || !req.user.id) {
@@ -485,25 +487,25 @@ app.put('/profile', authenticate, upload.single('profileImage'), async (req, res
         if (phoneNo) updates.phoneNo = phoneNo;
 
         if (req.file) {
-            // Upload the image to ImgBB
+            // Create form data and append the file buffer for ImgBB
             const form = new FormData();
             form.append('image', req.file.buffer);
 
+            // Replace 'your-api-key' with your actual ImgBB API key
             const response = await axios.post('https://api.imgbb.com/1/upload?key=e187c36b74d03da8d52035eeb0a3539f', form, {
                 headers: form.getHeaders(),
             });
 
-            const profileImageUrl = response.data.data.url; // ImgBB URL
-            updates.profileImage = profileImageUrl; // Save the image URL to the database
+            // Get the URL of the uploaded image
+            const profileImageUrl = response.data.data.url;
+            updates.profileImage = profileImageUrl; // Save the ImgBB URL to the database
         }
 
+        // Update the user profile with the new data
         const updatedUser = await User.findByIdAndUpdate(
             req.user.id,
             { $set: updates },
-            {
-                new: true,
-                runValidators: true,
-            }
+            { new: true, runValidators: true }
         );
 
         if (!updatedUser) {
