@@ -6,9 +6,9 @@ const CLOUD_SECRATE = process.env.CLOUD_API_SECRET
 
 // Configure Cloudinary with your credentials
 cloudinary.config({
-    cloud_name: 'duryg51ts', // Replace with your Cloudinary Cloud Name
-    api_key: '379864533116736',       // Replace with your API Key
-    api_secret: 'yE3xOwqat8n-hS5zfRv2EVV5gS8', // Replace with your API Secret
+    cloud_name: CLOUD_NAME,
+    api_key: CLOUD_KEY,
+    api_secret: CLOUD_SECRATE,
 });
 
 module.exports = cloudinary;
