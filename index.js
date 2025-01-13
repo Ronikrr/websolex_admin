@@ -423,13 +423,13 @@ app.put('/profile', authenticate, upload.single('profileImage'), async (req, res
             return res.status(401).json({ message: "Unauthorized: User not authenticated." });
         }
 
-        const { email, username, phoneNo } = req.body;
+        const { email, username, phoneNo, profileImage } = req.body;
 
         const updates = {};
         if (email) updates.email = email;
         if (username) updates.username = username;
         if (phoneNo) updates.phoneNo = phoneNo;
-        if (req.file) {
+        if (profileImage) {
             updates.profileImage = req.file.path;
         }
 
