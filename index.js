@@ -79,7 +79,7 @@ app.use((err, req, res, next) => {
 });
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/'); 
+        cb(null, 'uploads/');
     },
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -89,7 +89,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads/')));
 
 
 app.post('/upload-profile', upload.single('profileImage'), async (req, res) => {
@@ -109,10 +109,10 @@ app.post('/upload-profile', upload.single('profileImage'), async (req, res) => {
         const updatedUser = await User.findOneAndUpdate(
             { _id: new mongoose.Types.ObjectId(_id) },
             { profileImage: filePath },
-            { new: true }                               
+            { new: true }
         );
 
-        console.log('User:', _id); 
+        console.log('User:', _id);
         if (!updatedUser) {
             return res.status(404).json({ error: 'User not found' });
         }
@@ -414,7 +414,7 @@ app.get('/profile', authenticate, async (req, res) => {
 // });
 app.put('/profile', authenticate, upload.single('profileImage'), async (req, res) => {
     console.log("Request body:", req.body);
-    console.log("Uploaded file:", req.file);
+    console.log("Uploaded file:", req.file.filename);
 
     try {
         if (!req.user || !req.user.id) {
@@ -428,7 +428,7 @@ app.put('/profile', authenticate, upload.single('profileImage'), async (req, res
         if (username) updates.username = username;
         if (phoneNo) updates.phoneNo = phoneNo;
         if (profileImage) {
-            updates.profileImage = req.file.path;
+            updates.profileImage = req.file.filename;
         }
 
         const updatedUser = await User.findByIdAndUpdate(
@@ -443,14 +443,14 @@ app.put('/profile', authenticate, upload.single('profileImage'), async (req, res
         if (!updatedUser) {
             return res.status(404).json({ message: "User not found." });
         }
-
+        const profileImageUrl = `http://websolex-admin.vercel.app/uploads/${updatedUser.profileImage}`;
         const userResponse = {
             id: updatedUser._id,
             name: updatedUser.name,
             username: updatedUser.username,
             email: updatedUser.email,
             phoneNo: updatedUser.phoneNo,
-            profileImage: updatedUser.profileImage,
+            profileImage: profileImageUrl,
         };
 
         res.json({ message: "Profile updated successfully.", user: userResponse });
@@ -817,7 +817,7 @@ app.put('/api/project/:id', async (req, res) => {
             { new: true }
         )
         if (!updatedproject) {
-            return res.status(404).json({message:'project not found'})
+            return res.status(404).json({ message: 'project not found' })
         }
         res.status(200).json({
             message: 'Project updated successfully',
@@ -1276,18 +1276,18 @@ app.delete('/api/employee/:id', async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
-app.patch('/api/employee/:id',async (req,res) => {
+app.patch('/api/employee/:id', async (req, res) => {
     const { id } = req.params;
     const { status } = req.body
     if (!status) {
-        return res.status(400).json({ message:'status is required'})
+        return res.status(400).json({ message: 'status is required' })
     }
 
     try {
         const employees = await employee.findByIdAndUpdate(
             id,
             { status },
-            {new:true}
+            { new: true }
         )
         if (!employees) {
             return res.status(404).json({ message: 'Employee not found' });
