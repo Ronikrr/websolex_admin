@@ -412,6 +412,62 @@ app.get('/profile', authenticate, async (req, res) => {
 //         res.status(500).json({ message: "Internal server error." });
 //     }
 // });
+// app.put('/profile', authenticate, upload.single('profileImage'), async (req, res) => {
+//     console.log("Request body:", req.body);
+//     console.log("Uploaded file:", req.file.filename);
+
+//     try {
+//         if (!req.user || !req.user.id) {
+//             return res.status(401).json({ message: "Unauthorized: User not authenticated." });
+//         }
+
+//         const { email, username, phoneNo, profileImage } = req.body;
+
+//         const updates = {};
+//         if (email) updates.email = email;
+//         if (username) updates.username = username;
+//         if (phoneNo) updates.phoneNo = phoneNo;
+//         if (profileImage) {
+//             updates.profileImage = req.file.filename;
+//         }
+
+//         const updatedUser = await User.findByIdAndUpdate(
+//             req.user.id,
+//             { $set: updates },
+//             {
+//                 new: true,
+//                 runValidators: true,
+//             }
+//         );
+
+//         if (!updatedUser) {
+//             return res.status(404).json({ message: "User not found." });
+//         }
+//         const profileImageUrl = `http://websolex-admin.vercel.app/uploads/${updatedUser.profileImage}`;
+//         const userResponse = {
+//             id: updatedUser._id,
+//             name: updatedUser.name,
+//             username: updatedUser.username,
+//             email: updatedUser.email,
+//             phoneNo: updatedUser.phoneNo,
+//             profileImage: profileImageUrl,
+//         };
+
+//         res.json({ message: "Profile updated successfully.", user: userResponse });
+//     } catch (error) {
+//         console.error("Error updating profile:", error);
+
+//         if (error.code === 11000) {
+//             return res.status(400).json({ message: "Email must be unique." });
+//         }
+
+//         if (error.name === "ValidationError") {
+//             return res.status(400).json({ message: "Validation failed.", errors: error.errors });
+//         }
+
+//         res.status(500).json({ message: "Internal server error." });
+//     }
+// });
 app.put('/profile', authenticate, upload.single('profileImage'), async (req, res) => {
     console.log("Request body:", req.body);
     console.log("Uploaded file:", req.file.filename);
@@ -421,14 +477,24 @@ app.put('/profile', authenticate, upload.single('profileImage'), async (req, res
             return res.status(401).json({ message: "Unauthorized: User not authenticated." });
         }
 
-        const { email, username, phoneNo, profileImage } = req.body;
+        const { email, username, phoneNo } = req.body;
 
         const updates = {};
         if (email) updates.email = email;
         if (username) updates.username = username;
         if (phoneNo) updates.phoneNo = phoneNo;
-        if (profileImage) {
-            updates.profileImage = req.file.filename;
+
+        if (req.file) {
+            // Upload the image to ImgBB
+            const form = new FormData();
+            form.append('image', req.file.buffer);
+
+            const response = await axios.post('https://api.imgbb.com/1/upload?key=e187c36b74d03da8d52035eeb0a3539f', form, {
+                headers: form.getHeaders(),
+            });
+
+            const profileImageUrl = response.data.data.url; // ImgBB URL
+            updates.profileImage = profileImageUrl; // Save the image URL to the database
         }
 
         const updatedUser = await User.findByIdAndUpdate(
@@ -443,14 +509,14 @@ app.put('/profile', authenticate, upload.single('profileImage'), async (req, res
         if (!updatedUser) {
             return res.status(404).json({ message: "User not found." });
         }
-        const profileImageUrl = `http://websolex-admin.vercel.app/uploads/${updatedUser.profileImage}`;
+
         const userResponse = {
             id: updatedUser._id,
             name: updatedUser.name,
             username: updatedUser.username,
             email: updatedUser.email,
             phoneNo: updatedUser.phoneNo,
-            profileImage: profileImageUrl,
+            profileImage: updatedUser.profileImage, // ImgBB URL
         };
 
         res.json({ message: "Profile updated successfully.", user: userResponse });
@@ -468,6 +534,7 @@ app.put('/profile', authenticate, upload.single('profileImage'), async (req, res
         res.status(500).json({ message: "Internal server error." });
     }
 });
+
 
 
 /////////////////////////////////////////view count //////////////
