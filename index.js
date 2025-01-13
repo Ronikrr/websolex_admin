@@ -368,10 +368,61 @@ app.get('/profile', authenticate, async (req, res) => {
 
 //////////////////////////////////////////////   view couts
 
+// app.put('/profile', authenticate, upload.single('profileImage'), async (req, res) => {
+//     console.log(req.body)
+//     console.log(req.file)
+//     try {
+//         const { email, username, phoneNo } = req.body;
+
+//         const updates = {};
+//         if (email) updates.email = email;
+//         if (username) updates.username = username;
+//         if (phoneNo) updates.phoneNo = phoneNo;
+//         if (req.file) {
+//             updates.profileImage = req.file.path;
+//         }
+//         const updatedUser = await User.findByIdAndUpdate(
+//             req.user.id,
+//             { $set: updates },
+//             {
+//                 new: true,
+//                 runValidators: true,
+//             }
+//         );
+
+//         if (!updatedUser) {
+//             return res.status(404).json({ message: "User not found." });
+//         }
+
+//         const userResponse = {
+//             id: updatedUser._id,
+//             name: updatedUser.name,
+//             username: updatedUser.username,
+//             email: updatedUser.email,
+//             phoneNo: updatedUser.phoneNo,
+//             profileImage: updatedUser.profileImage,
+//         };
+
+//         res.json({ message: "Profile updated successfully.", user: userResponse });
+//     } catch (error) {
+//         console.error("Error updating profile:", error);
+
+//         if (error.code === 11000) { // Handle unique constraint errors
+//             return res.status(400).json({ message: "Email must be unique." });
+//         }
+
+//         res.status(500).json({ message: "Internal server error." });
+//     }
+// });
 app.put('/profile', authenticate, upload.single('profileImage'), async (req, res) => {
-    console.log(req.body)
-    console.log(req.file)
+    console.log("Request body:", req.body);
+    console.log("Uploaded file:", req.file);
+
     try {
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ message: "Unauthorized: User not authenticated." });
+        }
+
         const { email, username, phoneNo } = req.body;
 
         const updates = {};
@@ -380,7 +431,8 @@ app.put('/profile', authenticate, upload.single('profileImage'), async (req, res
         if (phoneNo) updates.phoneNo = phoneNo;
         if (req.file) {
             updates.profileImage = req.file.path;
-        } 
+        }
+
         const updatedUser = await User.findByIdAndUpdate(
             req.user.id,
             { $set: updates },
@@ -407,13 +459,18 @@ app.put('/profile', authenticate, upload.single('profileImage'), async (req, res
     } catch (error) {
         console.error("Error updating profile:", error);
 
-        if (error.code === 11000) { // Handle unique constraint errors
+        if (error.code === 11000) {
             return res.status(400).json({ message: "Email must be unique." });
+        }
+
+        if (error.name === "ValidationError") {
+            return res.status(400).json({ message: "Validation failed.", errors: error.errors });
         }
 
         res.status(500).json({ message: "Internal server error." });
     }
 });
+
 
 /////////////////////////////////////////view count //////////////
 
