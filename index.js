@@ -9,6 +9,7 @@ const fs = require("fs");
 require('dotenv').config();
 const app = express();
 const cookieParser = require('cookie-parser');
+const uploads = require('./multer');
 // const secretKey = crypto.randomBytes(10).toString('hex');
 // console.log(secretKey)
 // const teamRoutes = require('./teampage')
@@ -366,32 +367,74 @@ app.get('/profile', authenticate, async (req, res) => {
 
 //////////////////////////////////////////////   view couts
 
-app.put('/profile', authenticate, upload.single('profileImage'), async (req, res) => {
-    console.log(req.body)
-    console.log(req.file)
+// app.put('/profile', authenticate, upload.single('profileImage'), async (req, res) => {
+//     console.log(req.body)
+//     console.log(req.file)
+//     try {
+//         const { email, username, phoneNo } = req.body;
+
+//         const updates = {};
+//         if (email) updates.email = email;
+//         if (username) updates.username = username;
+//         if (phoneNo) updates.phoneNo = phoneNo;
+//         if (req.file) {
+//             updates.profileImage = req.file.path;
+//         }
+//         const updatedUser = await User.findByIdAndUpdate(
+//             req.user.id,
+//             { $set: updates },
+//             {
+//                 new: true,
+//                 runValidators: true,
+//             }
+//         );
+
+//         if (!updatedUser) {
+//             return res.status(404).json({ message: "User not found." });
+//         }
+
+//         const userResponse = {
+//             id: updatedUser._id,
+//             name: updatedUser.name,
+//             username: updatedUser.username,
+//             email: updatedUser.email,
+//             phoneNo: updatedUser.phoneNo,
+//             profileImage: updatedUser.profileImage,
+//         };
+
+//         res.json({ message: "Profile updated successfully.", user: userResponse });
+//     } catch (error) {
+//         console.error("Error updating profile:", error);
+
+//         if (error.code === 11000) { // Handle unique constraint errors
+//             return res.status(400).json({ message: "Email must be unique." });
+//         }
+
+//         res.status(500).json({ message: "Internal server error." });
+//     }
+// });
+
+app.put('/profile', authenticate, uploads.single('profileImage'), async (req, res) => {
     try {
         const { email, username, phoneNo } = req.body;
-
         const updates = {};
         if (email) updates.email = email;
         if (username) updates.username = username;
         if (phoneNo) updates.phoneNo = phoneNo;
         if (req.file) {
-            updates.profileImage = req.file.path;
+            updates.profileImage = req.file.path; 
         }
         const updatedUser = await User.findByIdAndUpdate(
             req.user.id,
             { $set: updates },
-            {
-                new: true,
-                runValidators: true,
-            }
+            { new: true, runValidators: true }
         );
 
         if (!updatedUser) {
             return res.status(404).json({ message: "User not found." });
         }
 
+        // Format user response
         const userResponse = {
             id: updatedUser._id,
             name: updatedUser.name,
@@ -405,7 +448,7 @@ app.put('/profile', authenticate, upload.single('profileImage'), async (req, res
     } catch (error) {
         console.error("Error updating profile:", error);
 
-        if (error.code === 11000) { // Handle unique constraint errors
+        if (error.code === 11000) {
             return res.status(400).json({ message: "Email must be unique." });
         }
 
@@ -477,12 +520,12 @@ app.get('/view_contactform', async (req, res) => {
 
 
 // CREATE: Add a new team member with an image
-app.post('/api/teampage', upload.single('image'), async (req, res) => {
+app.post('/api/teampage', uploads.single('image'), async (req, res) => {
     console.log('Received request body:', req.body);
-    console.log('Received file:', req.file.filename);
+    console.log('Received file:', req.file);
     try {
         const { name, post, linkedin, insta, facebook } = req.body;
-        const imagePath = req.file.filename;
+        const imagePath = req.file.path;
 
         const newMember = new Teampage({ name, post, linkedin, insta, facebook, image: imagePath });
         const savedMember = await newMember.save();
@@ -524,15 +567,15 @@ app.get('/api/teampage/:id', async (req, res) => {
 });
 
 // UPDATE: Update a team member's details, including the image
-app.put('/api/teampage/:id', upload.single('image'), async (req, res) => {
+app.put('/api/teampage/:id', uploads.single('image'), async (req, res) => {
     console.log(req.body)
-    console.log(req.file.filename)
+    console.log(req.file.path)
     try {
         const { id } = req.params;
 
         const updates = req.body;
         if (req.file) {
-            updates.image = req.file.filename;
+            updates.image = req.file.path;
         }
 
         const updatedMember = await Teampage.findByIdAndUpdate(id, updates, { new: true });
@@ -572,7 +615,7 @@ app.delete('/api/teampage/:id', async (req, res) => {
 
 
 
-app.post('/api/valuedclients', upload.single('images'), async (req, res) => {
+app.post('/api/valuedclients', uploads.single('images'), async (req, res) => {
     try {
         const { name } = req.body;
 
@@ -581,7 +624,7 @@ app.post('/api/valuedclients', upload.single('images'), async (req, res) => {
             return res.status(400).json({ message: 'Image is required' });
         }
 
-        const imagePath = req.file.filename; // Use the correct property for file path
+        const imagePath = req.file.path; // Use the correct property for file path
 
         // Create a new client
         const client = new Valueclient({ name, image: imagePath });
@@ -606,13 +649,13 @@ app.get('/api/valuedclients', async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
-app.put('/api/valuedclients/:id', upload.single('image'), async (req, res) => {
+app.put('/api/valuedclients/:id', uploads.single('image'), async (req, res) => {
     try {
         const { id } = req.params;
 
         const updates = req.body;
         if (req.file) {
-            updates.image = req.file.filename;
+            updates.image = req.file.path;
         }
 
         const updatedclients = await Valueclient.findByIdAndUpdate(id, updates, { new: true });
@@ -655,7 +698,7 @@ app.delete('/api/valuedclients/:id', async (req, res) => {
 
 
 
-app.post('/api/lastworkadd', upload.single('image_work'), async (req, res) => {
+app.post('/api/lastworkadd', uploads.single('image_work'), async (req, res) => {
     try {
         const { name, description, work } = req.body;
 
@@ -664,7 +707,7 @@ app.post('/api/lastworkadd', upload.single('image_work'), async (req, res) => {
             return res.status(400).json({ message: 'Image is required' });
         }
 
-        const imagePath = req.file.filename; // Use the correct property for file path
+        const imagePath = req.file.path; // Use the correct property for file path
 
         // Create a new client
         const lastworkadd = new lastwork({ name, description, work, image: imagePath });
@@ -689,7 +732,7 @@ app.get('/api/lastworkadd', async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
-app.put('/api/lastworkadd/:id', upload.single('image_work'), async (req, res) => {
+app.put('/api/lastworkadd/:id', uploads.single('image_work'), async (req, res) => {
     console.log(req.body)
     console.log(req.file.filename)
     try {
@@ -697,7 +740,7 @@ app.put('/api/lastworkadd/:id', upload.single('image_work'), async (req, res) =>
 
         const updates = req.body;
         if (req.file) {
-            updates.image = req.file.filename;
+            updates.image = req.file.path;
         }
 
         const updatedlastwork = await lastwork.findByIdAndUpdate(id, updates, { new: true });
@@ -798,7 +841,7 @@ app.get('/api/project', async (req, res) => {
 
 
 
-app.post('/api/clientrate', upload.single('image_work'), async (req, res) => {
+app.post('/api/clientrate', uploads.single('image_work'), async (req, res) => {
     try {
         const { name, description, business, rate } = req.body;
 
@@ -807,7 +850,7 @@ app.post('/api/clientrate', upload.single('image_work'), async (req, res) => {
             return res.status(400).json({ message: 'Image is required' });
         }
 
-        const imagePath = req.file.filename; // Use the correct property for file path
+        const imagePath = req.file.path; // Use the correct property for file path
 
         // Create a new client
         const clientrateadd = new clientrate({ name, description, business, rate, image: imagePath });
@@ -832,7 +875,7 @@ app.get('/api/clientrate', async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
-app.put('/api/clientrate/:id', upload.single('image_client_work'), async (req, res) => {
+app.put('/api/clientrate/:id', uploads.single('image_client_work'), async (req, res) => {
     console.log(req.body)
     console.log(req.file.filename)
     try {
@@ -840,7 +883,7 @@ app.put('/api/clientrate/:id', upload.single('image_client_work'), async (req, r
 
         const updates = req.body;
         if (req.file) {
-            updates.image = req.file.filename;
+            updates.image = req.file.path;
         }
 
         const updatedclientrate = await clientrate.findByIdAndUpdate(id, updates, { new: true });
@@ -879,13 +922,13 @@ app.delete('/api/valuedclients/:id', async (req, res) => {
 
 
 
-app.post('/api/service', upload.single('image_client_work'), async (req, res) => {
+app.post('/api/service', uploads.single('image_client_work'), async (req, res) => {
     try {
         const { name, title, dis1, dis2 } = req.body;
         if (!req.file) {
             return res.status(400).json({ message: 'Image is required' });
         }
-        const imagePath = req.file.filename;
+        const imagePath = req.file.path;
         const serviceadd = new service({ name, title, dis1, dis2, image: imagePath });
         const savedserviceadd = await serviceadd.save();
 
@@ -912,15 +955,15 @@ app.get('/api/service', async (req, res) => {
 });
 
 
-app.put('/api/service/:id', upload.single('image_client_work'), async (req, res) => {
+app.put('/api/service/:id', uploads.single('image_client_work'), async (req, res) => {
     console.log(req.body)
-    console.log(req.file.filename)
+    console.log(req.file.path)
     try {
         const { id } = req.params;
 
         const updates = req.body;
         if (req.file) {
-            updates.image = req.file.filename;
+            updates.image = req.file.path;
         }
 
         const updatedservice = await service.findByIdAndUpdate(id, updates, { new: true });
@@ -961,7 +1004,7 @@ app.delete('/api/service/:id', async (req, res) => {
 
 
 
-app.post('/api/blogpage', upload.single('image_client_work'), async (req, res) => {
+app.post('/api/blogpage', uploads.single('image_client_work'), async (req, res) => {
     console.log(req.body)
     console.log(req.file.filename)
     try {
@@ -969,7 +1012,7 @@ app.post('/api/blogpage', upload.single('image_client_work'), async (req, res) =
         if (!req.file) {
             return res.status(400).json({ message: 'Image is required' });
         }
-        const imagePath = req.file.filename;
+        const imagePath = req.file.path;
         const blogadd = new blog({ name, title1, description1, title2, description2, title3, description3, image: imagePath });
         const savedblogadd = await blogadd.save();
 
@@ -996,15 +1039,15 @@ app.get('/api/blogpage', async (req, res) => {
 });
 
 
-app.put('/api/blogpage/:id', upload.single('image_client_work'), async (req, res) => {
+app.put('/api/blogpage/:id', uploads.single('image_client_work'), async (req, res) => {
     console.log(req.body)
-    console.log(req.file.filename)
+    console.log(req.file.path)
     try {
         const { id } = req.params;
 
         const updates = req.body;
         if (req.file) {
-            updates.image = req.file.filename;
+            updates.image = req.file.path;
         }
 
         const updatedservice = await blog.findByIdAndUpdate(id, updates, { new: true });
