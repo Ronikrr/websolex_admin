@@ -81,10 +81,10 @@ app.use((err, req, res, next) => {
 
 
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads/')));
+// app.use('/uploads', express.static(path.join(__dirname, 'uploads/')));
 
 
-app.post('/upload-profile', upload.single('profileImage'), async (req, res) => {
+app.post('/upload-profile', uploads.single('profileImage'), async (req, res) => {
     console.log(req.file);
     console.log(req.body._id);
     console.log(req.file.path);
@@ -640,7 +640,7 @@ app.get('/api/valuedclients', async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
-app.put('/api/valuedclients/:id', uploads.single('image'), async (req, res) => {
+app.put('/api/valuedclients/:id', uploads.single('images'), async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -660,6 +660,7 @@ app.put('/api/valuedclients/:id', uploads.single('image'), async (req, res) => {
     }
 });
 app.delete('/api/valuedclients/:id', async (req, res) => {
+    console.log(req.body)
     try {
         const { id } = req.params;
         const deletedclients = await Valueclient.findByIdAndDelete(id);
@@ -690,26 +691,22 @@ app.delete('/api/valuedclients/:id', async (req, res) => {
 
 
 app.post('/api/lastworkadd', uploads.single('image_work'), async (req, res) => {
+    console.log(req.body)
     try {
         const { name, description, work } = req.body;
-
-        // Ensure file exists
         if (!req.file) {
             return res.status(400).json({ message: 'Image is required' });
         }
-
-        const imagePath = req.file.path; // Use the correct property for file path
-
-        // Create a new client
+        const imagePath = req.file.path;
         const lastworkadd = new lastwork({ name, description, work, image: imagePath });
         const savedlastworkadd = await lastworkadd.save();
 
         res.status(200).json({
-            message: 'Client member created successfully',
+            message: 'lastworkadd  created successfully',
             member: savedlastworkadd,
         });
     } catch (error) {
-        console.error('Error creating client member:', error);
+        console.error('Error creating lastworkadd member:', error.message);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
@@ -832,7 +829,7 @@ app.get('/api/project', async (req, res) => {
 
 
 
-app.post('/api/clientrate', uploads.single('image_work'), async (req, res) => {
+app.post('/api/clientrate', uploads.single('image_work_client'), async (req, res) => {
     try {
         const { name, description, business, rate } = req.body;
 
@@ -995,7 +992,7 @@ app.delete('/api/service/:id', async (req, res) => {
 
 
 
-app.post('/api/blogpage', uploads.single('image_client_work'), async (req, res) => {
+app.post('/api/blogpage', uploads.single('image_blog_work'), async (req, res) => {
     console.log(req.body)
     console.log(req.file.filename)
     try {
@@ -1030,7 +1027,7 @@ app.get('/api/blogpage', async (req, res) => {
 });
 
 
-app.put('/api/blogpage/:id', uploads.single('image_client_work'), async (req, res) => {
+app.put('/api/blogpage/:id', uploads.single('image_blog_work'), async (req, res) => {
     console.log(req.body)
     console.log(req.file.path)
     try {
