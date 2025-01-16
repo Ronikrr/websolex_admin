@@ -784,26 +784,26 @@ app.post('/api/project', async (req, res) => {
     }
 });
 app.put('/api/project/:id', async (req, res) => {
-    const { id } = req.params
+    const { id } = req.params;
     const { totalClients, completedProjects } = req.body;
     try {
         const updatedproject = await project.findOneAndUpdate(
-            id,
+            { _id: id }, // Correctly find the project by ID
             { totalClients, completedProjects },
             { new: true }
-        )
+        );
         if (!updatedproject) {
-            return res.status(404).json({ message: 'project not found' })
+            return res.status(404).json({ message: 'Project not found' });
         }
         res.status(200).json({
             message: 'Project updated successfully',
             project: updatedproject
-        })
+        });
     } catch (error) {
         console.error('Error updating project:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
-})
+});
 app.get('/api/project', async (req, res) => {
     try {
         // Fetch all projects from the database
