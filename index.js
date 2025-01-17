@@ -1156,10 +1156,10 @@ app.get('/api/socialdetails', async (req, res) => {
 app.put('/api/socialdetails', async (req, res) => {
     console.log(req.body);
     try {
-        const { _id, facebook, whatsapp, instagram, linkedin } = req.body;
+        const { id, facebook, whatsapp, instagram, linkedin } = req.body;
 
         // Check if id is provided
-        if (!_id) {
+        if (!id) {
             return res.status(400).json({ message: 'ID is required for updating' });
         }
 
