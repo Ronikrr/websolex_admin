@@ -451,9 +451,6 @@ app.post("/contactform", async (req, res) => {
 app.get('/view_contactform', async (req, res) => {
     try {
         const view_contactform = await ContactForm.findOne();
-        if (!view_contactform) {
-            return res.status(404).json({ message: "No contact forms found" });
-        }
         res.json(view_contactform);
     } catch (error) {
         console.error("Error fetching form:", error);
