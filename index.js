@@ -450,7 +450,7 @@ app.post("/contactform", async (req, res) => {
 // GET Endpoint
 app.get('/view_contactform', async (req, res) => {
     try {
-        const view_contactform = await ContactForm.findOne();
+        const view_contactform = await ContactForm.find();
         res.json(view_contactform);
     } catch (error) {
         console.error("Error fetching form:", error);
@@ -478,7 +478,7 @@ app.post("/subscribe", async (req, res) => {
 // GET Endpoint
 app.get('/subscribe', async (req, res) => {
     try {
-        const view_sub = await subscribe.findOne();
+        const view_sub = await subscribe.find();
         if (!view_sub) {
             return res.status(404).json({ message: "No subsriber found" });
         }
