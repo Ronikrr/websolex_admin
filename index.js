@@ -46,6 +46,7 @@ const blog = require('./model/blogpage');
 const contactdetails = require('./model/contactdetails');
 const socialdetails = require('./model/social');
 const employee = require('./model/employye');
+const subscribe = require('./model/subscribe')
 //////////// all models connect mongose end //////////////
 
 const authenticate = (req, res, next) => {
@@ -358,52 +359,7 @@ app.get('/profile', authenticate, async (req, res) => {
 
 //////////////////////////////////////////////   view couts
 
-// app.put('/profile', authenticate, upload.single('profileImage'), async (req, res) => {
-//     console.log(req.body)
-//     console.log(req.file)
-//     try {
-//         const { email, username, phoneNo } = req.body;
 
-//         const updates = {};
-//         if (email) updates.email = email;
-//         if (username) updates.username = username;
-//         if (phoneNo) updates.phoneNo = phoneNo;
-//         if (req.file) {
-//             updates.profileImage = req.file.path;
-//         }
-//         const updatedUser = await User.findByIdAndUpdate(
-//             req.user.id,
-//             { $set: updates },
-//             {
-//                 new: true,
-//                 runValidators: true,
-//             }
-//         );
-
-//         if (!updatedUser) {
-//             return res.status(404).json({ message: "User not found." });
-//         }
-
-//         const userResponse = {
-//             id: updatedUser._id,
-//             name: updatedUser.name,
-//             username: updatedUser.username,
-//             email: updatedUser.email,
-//             phoneNo: updatedUser.phoneNo,
-//             profileImage: updatedUser.profileImage,
-//         };
-
-//         res.json({ message: "Profile updated successfully.", user: userResponse });
-//     } catch (error) {
-//         console.error("Error updating profile:", error);
-
-//         if (error.code === 11000) { // Handle unique constraint errors
-//             return res.status(400).json({ message: "Email must be unique." });
-//         }
-
-//         res.status(500).json({ message: "Internal server error." });
-//     }
-// });
 
 app.put('/profile', authenticate, uploads.single('profileImage'), async (req, res) => {
     try {
@@ -504,6 +460,49 @@ app.get('/view_contactform', async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 });
+
+
+app.post("/subscribe", async (req, res) => {
+    console.log(req.body)
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ message: "email are required" });
+        }
+        const sub = new subscribe({ email });
+        const doc = await sub.save();
+        res.status(201).json({ message: "Form submitted successfully", data: doc });
+    } catch (error) {
+        console.error("Error saving form:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+// GET Endpoint
+app.get('/subscribe', async (req, res) => {
+    try {
+        const view_sub = await subscribe.findOne();
+        if (!view_sub) {
+            return res.status(404).json({ message: "No subsriber found" });
+        }
+        res.json(view_sub);
+    } catch (error) {
+        console.error("Error fetching form:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
 
 ////////////////////////////////////////////////////////////////// teampageSchema ///////////////////////////////////////////////////////////////////
 
