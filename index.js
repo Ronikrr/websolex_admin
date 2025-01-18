@@ -689,12 +689,12 @@ app.delete('/api/valuedclients/:id', async (req, res) => {
 app.post('/api/lastworkadd', uploads.single('image_work'), async (req, res) => {
     console.log(req.body)
     try {
-        const { name, description, work } = req.body;
+        const { name, description, category, work } = req.body;
         if (!req.file) {
             return res.status(400).json({ message: 'Image is required' });
         }
         const imagePath = req.file.path;
-        const lastworkadd = new lastwork({ name, description, work, image: imagePath });
+        const lastworkadd = new lastwork({ name, description, category, work, image: imagePath });
         const savedlastworkadd = await lastworkadd.save();
 
         res.status(200).json({
