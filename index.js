@@ -821,77 +821,163 @@ app.put('/api/project/', async (req, res) => {
 
 
 
+// app.post('/api/clientrate', uploads.single('image_work_client'), async (req, res) => {
+//     console.log(req.body)
+//     try {
+//         const { name, description, business, rate } = req.body;
+
+//         // Ensure file exists
+//         if (!req.file) {
+//             return res.status(400).json({ message: 'Image is required' });
+//         }
+
+//         const imagePath = req.file.path; // Use the correct property for file path
+
+//         // Create a new client
+//         const clientrateadd = new clientrate({ name, description, business, rate, image: imagePath });
+//         const savedclientratekadd = await clientrateadd.save();
+
+//         res.status(200).json({
+//             message: 'Client member created successfully',
+//             member: savedclientratekadd,
+//         });
+//     } catch (error) {
+//         console.error('Error creating client member:', error);
+//         res.status(500).json({ message: 'Internal Server Error' });
+//     }
+// });
+// app.get('/api/clientrate', async (req, res) => {
+//     console.log(req.body)
+//     try {
+//         const clientrateadd = await clientrate.find();
+//         // console.log("Fetched team members:", clientrateadd);
+//         res.status(200).json(clientrateadd);
+//     } catch (error) {
+//         console.error('Error fetching team clients:', error);
+//         res.status(500).json({ message: 'Internal Server Error' });
+//     }
+// });
+// app.put('/api/clientrate/:id', uploads.single('image_client_work'), async (req, res) => {
+//     console.log(req.body)
+//     try {
+//         const { id } = req.params;
+
+//         const updates = req.body;
+//         if (req.file) {
+//             updates.image = req.file.path;
+//         }
+
+//         const updatedclientrate = await clientrate.findByIdAndUpdate(id, updates, { new: true });
+//         if (!updatedclientrate) {
+//             return res.status(404).json({ message: 'Team clients not found' });
+//         }
+//         res.status(200).json({ message: 'Team clients updated successfully', member: updatedclientrate });
+//     } catch (error) {
+//         console.error('Error updating team member:', error);
+//         res.status(500).json({ message: 'Internal Server Error' });
+//     }
+// });
+// app.delete('/api/valuedclients/:id', async (req, res) => {
+//     try {
+//         const { id } = req.params;
+//         const deletedclientrate = await lastwork.findByIdAndDelete(id);
+//         if (!deletedclientrate) {
+//             return res.status(404).json({ message: 'Team member not found' });
+//         }
+
+//         // Delete the image file if it exists
+//         if (deletedclientrate.image && fs.existsSync(deletedclientrate.image)) {
+//             fs.unlinkSync(deletedclientrate.image);
+//         }
+//         res.status(200).json({ message: 'Team member deleted successfully' });
+//     } catch (error) {
+//         console.error('Error deleting team member:', error);
+//         res.status(500).json({ message: 'Internal Server Error' });
+//     }
+// });
 app.post('/api/clientrate', uploads.single('image_work_client'), async (req, res) => {
-    console.log(req.body)
     try {
         const { name, description, business, rate } = req.body;
 
-        // Ensure file exists
+        // Ensure the image is uploaded
         if (!req.file) {
             return res.status(400).json({ message: 'Image is required' });
         }
 
-        const imagePath = req.file.path; // Use the correct property for file path
+        const imagePath = req.file.path; // Path to the uploaded image
 
-        // Create a new client
+        // Create and save a new client
         const clientrateadd = new clientrate({ name, description, business, rate, image: imagePath });
-        const savedclientratekadd = await clientrateadd.save();
+        const savedClientRate = await clientrateadd.save();
 
-        res.status(200).json({
+        res.status(201).json({
             message: 'Client member created successfully',
-            member: savedclientratekadd,
+            member: savedClientRate,
         });
     } catch (error) {
         console.error('Error creating client member:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+
+// Fetch all client members
 app.get('/api/clientrate', async (req, res) => {
-    console.log(req.body)
     try {
-        const clientrateadd = await clientrate.find();
-        // console.log("Fetched team members:", clientrateadd);
-        res.status(200).json(clientrateadd);
+        const clientRates = await clientrate.find();
+        res.status(200).json(clientRates);
     } catch (error) {
-        console.error('Error fetching team clients:', error);
+        console.error('Error fetching client members:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+
+// Update a client member
 app.put('/api/clientrate/:id', uploads.single('image_client_work'), async (req, res) => {
-    console.log(req.body)
     try {
         const { id } = req.params;
+        const updates = { ...req.body };
 
-        const updates = req.body;
+        // Update the image if a new one is uploaded
         if (req.file) {
             updates.image = req.file.path;
         }
 
-        const updatedclientrate = await clientrate.findByIdAndUpdate(id, updates, { new: true });
-        if (!updatedclientrate) {
-            return res.status(404).json({ message: 'Team clients not found' });
+        const updatedClientRate = await clientrate.findByIdAndUpdate(id, updates, { new: true });
+
+        if (!updatedClientRate) {
+            return res.status(404).json({ message: 'Client member not found' });
         }
-        res.status(200).json({ message: 'Team clients updated successfully', member: updatedclientrate });
+
+        res.status(200).json({
+            message: 'Client member updated successfully',
+            member: updatedClientRate,
+        });
     } catch (error) {
-        console.error('Error updating team member:', error);
+        console.error('Error updating client member:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
-app.delete('/api/valuedclients/:id', async (req, res) => {
+
+// Delete a client member
+app.delete('/api/clientrate/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const deletedclientrate = await lastwork.findByIdAndDelete(id);
-        if (!deletedclientrate) {
-            return res.status(404).json({ message: 'Team member not found' });
+
+        // Find and delete the client member
+        const deletedClientRate = await clientrate.findByIdAndDelete(id);
+
+        if (!deletedClientRate) {
+            return res.status(404).json({ message: 'Client member not found' });
         }
 
-        // Delete the image file if it exists
-        if (deletedclientrate.image && fs.existsSync(deletedclientrate.image)) {
-            fs.unlinkSync(deletedclientrate.image);
+        // Delete the associated image file
+        if (deletedClientRate.image && fs.existsSync(deletedClientRate.image)) {
+            fs.unlinkSync(deletedClientRate.image);
         }
-        res.status(200).json({ message: 'Team member deleted successfully' });
+
+        res.status(200).json({ message: 'Client member deleted successfully' });
     } catch (error) {
-        console.error('Error deleting team member:', error);
+        console.error('Error deleting client member:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
