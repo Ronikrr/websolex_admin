@@ -88,7 +88,7 @@ app.use((err, req, res, next) => {
 app.post('/upload-profile', uploads.single('profileImage'), async (req, res) => {
     console.log(req.file);
     console.log(req.body._id);
-    console.log(req.file.path);
+
 
     if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded' });
@@ -556,7 +556,6 @@ app.get('/api/teampage/:id', async (req, res) => {
 // UPDATE: Update a team member's details, including the image
 app.put('/api/teampage/:id', uploads.single('image'), async (req, res) => {
     console.log(req.body)
-    console.log(req.file.path)
     try {
         const { id } = req.params;
 
@@ -718,7 +717,6 @@ app.get('/api/lastworkadd', async (req, res) => {
 });
 app.put('/api/lastworkadd/:id', uploads.single('image_work'), async (req, res) => {
     console.log(req.body)
-    console.log(req.file.filename)
     try {
         const { id } = req.params;
 
@@ -940,7 +938,6 @@ app.get('/api/service', async (req, res) => {
 
 app.put('/api/service/:id', uploads.single('image_client_work'), async (req, res) => {
     console.log(req.body)
-    console.log(req.file.path)
     try {
         const { id } = req.params;
 
