@@ -989,7 +989,6 @@ app.delete('/api/service/:id', async (req, res) => {
 
 app.post('/api/blogpage', uploads.single('image_blog_work'), async (req, res) => {
     console.log(req.body)
-    console.log(req.file.filename)
     try {
         const { name, title1, description1, title2, description2, title3, description3, } = req.body;
         if (!req.file) {
@@ -1024,7 +1023,6 @@ app.get('/api/blogpage', async (req, res) => {
 
 app.put('/api/blogpage/:id', uploads.single('image_blog_work'), async (req, res) => {
     console.log(req.body)
-    console.log(req.file.path)
     try {
         const { id } = req.params;
 
