@@ -824,6 +824,7 @@ app.put('/api/project/', async (req, res) => {
 
 
 app.post('/api/clientrate', uploads.single('image_work_client'), async (req, res) => {
+    console.log(req.body)
     try {
         const { name, description, business, rate } = req.body;
 
@@ -848,6 +849,7 @@ app.post('/api/clientrate', uploads.single('image_work_client'), async (req, res
     }
 });
 app.get('/api/clientrate', async (req, res) => {
+    console.log(req.body)
     try {
         const clientrateadd = await clientrate.find();
         // console.log("Fetched team members:", clientrateadd);
@@ -859,7 +861,6 @@ app.get('/api/clientrate', async (req, res) => {
 });
 app.put('/api/clientrate/:id', uploads.single('image_client_work'), async (req, res) => {
     console.log(req.body)
-    console.log(req.file.filename)
     try {
         const { id } = req.params;
 
