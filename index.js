@@ -715,6 +715,22 @@ app.get('/api/lastworkadd', async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+app.get('/api/lastworkadd/:id', async (req, res) => {
+    try {
+        const { id } = req.params; // Extract ID from the request parameters
+        const lastworkadd = await lastwork.findById(id); // Fetch the document by ID
+
+        if (!lastworkadd) {
+            return res.status(404).json({ message: 'Work not found' }); // Handle non-existent ID
+        }
+
+        res.status(200).json(lastworkadd); // Send the found document
+    } catch (error) {
+        console.error('Error fetching work by ID:', error);
+        res.status(500).json({ message: 'Internal Server Error' }); // Handle server errors
+    }
+});
+
 app.put('/api/lastworkadd/:id', uploads.single('image_work'), async (req, res) => {
     console.log(req.body)
     try {
