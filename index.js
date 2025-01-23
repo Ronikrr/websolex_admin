@@ -18,7 +18,7 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 const path = require("path");
 
-const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || "Websolex@admin_JWTSECRETTOKEN"
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY 
 
 const MongoDB = process.env.MONGO_URI
 const PORT = process.env.PORT
@@ -47,6 +47,7 @@ const contactdetails = require('./model/contactdetails');
 const socialdetails = require('./model/social');
 const employee = require('./model/employye');
 const subscribe = require('./model/subscribe')
+const SetStatic = require('./model/setstatic')
 //////////// all models connect mongose end //////////////
 
 const authenticate = (req, res, next) => {
@@ -1366,6 +1367,58 @@ app.patch('/api/employee/:id', async (req, res) => {
         return res.status(500).json({ message: 'Internal Server Error' });
     }
 })
+app.post('/api/setstatic', async (req, res) => {
+    try {
+        const { successfulproject, joiningcomparies, registeredcustomers } = req.body;
+        const setstaticadd = new SetStatic({ successfulproject, joiningcomparies, registeredcustomers });
+        const savedsetstaticadd = await setstaticadd.save();
+        res.status(200).json({
+            message: 'set static successfully',
+            member: savedsetstaticadd,
+        });
+    } catch (error) {
+        console.error('Error creating client member:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+app.get('/api/setstatic', async (req, res) => {
+    try {
+        const savedsetstaticadd = await SetStatic.find();
+        console.log("Fetched team members:", savedsetstaticadd);
+        res.status(200).json(savedsetstaticadd);
+    } catch (error) {
+        console.error('Error fetching team clients:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+app.put('/api/setstatic', async (req, res) => {
+    try {
+        const { id, successfulproject, joiningcomparies, registeredcustomers } = req.body;
+
+        // Check if id is provided
+        if (!id) {
+            return res.status(400).json({ message: 'ID is required for updating' });
+        }
+
+        // Prepare update data
+        const updatedData = { successfulproject, joiningcomparies, registeredcustomers };
+
+        // Find the contact by ID and update
+        const updatedsetstatic = await SetStatic.findByIdAndUpdate(id, updatedData, { new: true });
+
+        if (!updatedsetstatic) {
+            return res.status(404).json({ message: 'Contact details not found' });
+        }
+
+        res.status(200).json({
+            message: 'Client member updated successfully',
+            member: updatedsetstatic,
+        });
+    } catch (error) {
+        console.error('Error updating client member:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
 
 // const router = require('./routers/index')
 
