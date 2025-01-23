@@ -958,7 +958,7 @@ app.get('/api/blogpage', async (req, res) => {
 app.get('/api/blogpage/:id', async (req, res) => {
     try {
         const { id } = req.params
-        const blogPosts = await blog.find(id);
+        const blogPosts = await blog.findById(id);
         if (!blogPosts) {
             return res.status(404).json({ message: 'Work not found' }); // Handle non-existent ID
         }
