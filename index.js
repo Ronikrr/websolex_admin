@@ -18,7 +18,7 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 const path = require("path");
 
-const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY 
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY
 
 const MongoDB = process.env.MONGO_URI
 const PORT = process.env.PORT
@@ -71,7 +71,6 @@ const authenticate = (req, res, next) => {
         res.status(401).json({ message: 'Invalid or expired token.' });
     }
 };
-console.log(authenticate)
 
 
 
@@ -80,92 +79,6 @@ console.log(authenticate)
 app.use((err, req, res, next) => {
     res.status(500).json({ message: err.message });
 });
-
-
-
-// app.use('/uploads', express.static(path.join(__dirname, 'uploads/')));
-
-
-app.post('/upload-profile', uploads.single('profileImage'), async (req, res) => {
-    console.log(req.file);
-    console.log(req.body._id);
-
-
-    if (!req.file) {
-        return res.status(400).json({ error: 'No file uploaded' });
-    }
-
-    const _id = req.body._id;
-    const filePath = req.file.path;
-
-    try {
-        console.log('User ID:', _id);
-        const updatedUser = await User.findOneAndUpdate(
-            { _id: new mongoose.Types.ObjectId(_id) },
-            { profileImage: filePath },
-            { new: true }
-        );
-
-        console.log('User:', _id);
-        if (!updatedUser) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-        await updatedUser.save();
-        res.json({ message: 'Profile image uploaded successfully' });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Error fetching user' });
-    }
-});
-
-
-app.get("/view-profile", authenticate, async (req, res) => {
-    console.log("Query:", req.query);
-
-    try {
-        const userId = req.query.userid;
-        console.log("Received userId:", userId);
-
-        // Validate the userId parameter
-        if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
-            return res.status(400).json({ status: "error", message: "Invalid or missing User ID" });
-        }
-
-        // Convert userId to ObjectId
-        const objectId = new mongoose.Types.ObjectId(userId);
-
-        // Fetch images for the given userId, and make sure profileImage is properly queried
-        const images = await User.find({ _id: objectId }).select('profileImage url');  // Changed userId to _id
-
-        console.log("Fetched images:", images);
-
-        if (images.length === 0) {
-            return res.status(404).json({ status: "error", message: "No images found for the provided User ID" });
-        }
-
-        res.send({ status: "ok", data: images });
-    } catch (error) {
-        console.error("Error:", error.message);  // Log error message for better clarity
-        res.status(500).json({ status: "error", message: error.message });
-    }
-});
-app.get("/view_all_users", async (req, res) => {
-    try {
-        // Fetch all users from the database and select specific fields if needed
-        const users = await User.find().select('name email profileImage'); // Modify fields as per your schema
-
-        // Check if users exist
-        if (users.length === 0) {
-            return res.status(404).json({ status: "error", message: "No users found" });
-        }
-
-        res.send({ status: "ok", data: users });
-    } catch (error) {
-        console.error("Error:", error.message); // Log the error
-        res.status(500).json({ status: "error", message: "An error occurred while fetching users" });
-    }
-});
-
 
 
 
@@ -370,7 +283,7 @@ app.put('/profile', authenticate, uploads.single('profileImage'), async (req, re
         if (username) updates.username = username;
         if (phoneNo) updates.phoneNo = phoneNo;
         if (req.file) {
-            updates.profileImage = req.file.path; 
+            updates.profileImage = req.file.path;
         }
         const updatedUser = await User.findByIdAndUpdate(
             req.user.id,
@@ -494,14 +407,6 @@ app.get('/subscribe', async (req, res) => {
 
 
 
-
-
-
-
-
-
-
-
 ////////////////////////////////////////////////////////////////// teampageSchema ///////////////////////////////////////////////////////////////////
 
 
@@ -556,7 +461,6 @@ app.get('/api/teampage/:id', async (req, res) => {
 
 // UPDATE: Update a team member's details, including the image
 app.put('/api/teampage/:id', uploads.single('image'), async (req, res) => {
-    console.log(req.body)
     try {
         const { id } = req.params;
 
@@ -835,83 +739,6 @@ app.put('/api/project/', async (req, res) => {
 
 //////////////////////////////////////////// client rate///////////////!SECTION
 
-
-
-
-// app.post('/api/clientrate', uploads.single('image_work_client'), async (req, res) => {
-//     console.log(req.body)
-//     try {
-//         const { name, description, business, rate } = req.body;
-
-//         // Ensure file exists
-//         if (!req.file) {
-//             return res.status(400).json({ message: 'Image is required' });
-//         }
-
-//         const imagePath = req.file.path; // Use the correct property for file path
-
-//         // Create a new client
-//         const clientrateadd = new clientrate({ name, description, business, rate, image: imagePath });
-//         const savedclientratekadd = await clientrateadd.save();
-
-//         res.status(200).json({
-//             message: 'Client member created successfully',
-//             member: savedclientratekadd,
-//         });
-//     } catch (error) {
-//         console.error('Error creating client member:', error);
-//         res.status(500).json({ message: 'Internal Server Error' });
-//     }
-// });
-// app.get('/api/clientrate', async (req, res) => {
-//     console.log(req.body)
-//     try {
-//         const clientrateadd = await clientrate.find();
-//         // console.log("Fetched team members:", clientrateadd);
-//         res.status(200).json(clientrateadd);
-//     } catch (error) {
-//         console.error('Error fetching team clients:', error);
-//         res.status(500).json({ message: 'Internal Server Error' });
-//     }
-// });
-// app.put('/api/clientrate/:id', uploads.single('image_client_work'), async (req, res) => {
-//     console.log(req.body)
-//     try {
-//         const { id } = req.params;
-
-//         const updates = req.body;
-//         if (req.file) {
-//             updates.image = req.file.path;
-//         }
-
-//         const updatedclientrate = await clientrate.findByIdAndUpdate(id, updates, { new: true });
-//         if (!updatedclientrate) {
-//             return res.status(404).json({ message: 'Team clients not found' });
-//         }
-//         res.status(200).json({ message: 'Team clients updated successfully', member: updatedclientrate });
-//     } catch (error) {
-//         console.error('Error updating team member:', error);
-//         res.status(500).json({ message: 'Internal Server Error' });
-//     }
-// });
-// app.delete('/api/valuedclients/:id', async (req, res) => {
-//     try {
-//         const { id } = req.params;
-//         const deletedclientrate = await lastwork.findByIdAndDelete(id);
-//         if (!deletedclientrate) {
-//             return res.status(404).json({ message: 'Team member not found' });
-//         }
-
-//         // Delete the image file if it exists
-//         if (deletedclientrate.image && fs.existsSync(deletedclientrate.image)) {
-//             fs.unlinkSync(deletedclientrate.image);
-//         }
-//         res.status(200).json({ message: 'Team member deleted successfully' });
-//     } catch (error) {
-//         console.error('Error deleting team member:', error);
-//         res.status(500).json({ message: 'Internal Server Error' });
-//     }
-// });
 app.post('/api/clientrate', uploads.single('image_work_client'), async (req, res) => {
     try {
         const { name, description, business, rate } = req.body;
@@ -1090,20 +917,30 @@ app.delete('/api/service/:id', async (req, res) => {
 app.post('/api/blogpage', uploads.single('image_blog_work'), async (req, res) => {
     console.log(req.body)
     try {
-        const { name, title1, description1, title2, description2, title3, description3, } = req.body;
+        const { name } = req.body;
         if (!req.file) {
             return res.status(400).json({ message: 'Image is required' });
         }
         const imagePath = req.file.path;
-        const blogadd = new blog({ name, title1, description1, title2, description2, title3, description3, image: imagePath });
+
+        // Extract all title-description pairs
+        const content = [];
+        for (let i = 1; req.body[`title${i}`] && req.body[`description${i}`]; i++) {
+            content.push({
+                title: req.body[`title${i}`],
+                description: req.body[`description${i}`]
+            });
+        }
+
+        const blogadd = new blog({ name, content, image: imagePath });
         const savedblogadd = await blogadd.save();
 
         res.status(200).json({
-            message: 'Client member created successfully',
-            member: savedblogadd,
+            message: 'Blog post created successfully',
+            blogadd: savedblogadd,
         });
     } catch (error) {
-        console.error('Error creating client member:', error);
+        console.error('Error creating blog post:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
@@ -1111,11 +948,23 @@ app.post('/api/blogpage', uploads.single('image_blog_work'), async (req, res) =>
 
 app.get('/api/blogpage', async (req, res) => {
     try {
-        const serviceadd = await blog.find();
-        // console.log("Fetched team members:", serviceadd);
-        res.status(200).json(serviceadd);
+        const blogPosts = await blog.find();
+        res.status(200).json(blogPosts);
     } catch (error) {
-        console.error('Error fetching team clients:', error);
+        console.error('Error fetching blog posts:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+app.get('/api/blogpage/:id', async (req, res) => {
+    try {
+        const { id } = req.params
+        const blogPosts = await blog.find(id);
+        if (!blogPosts) {
+            return res.status(404).json({ message: 'Work not found' }); // Handle non-existent ID
+        }
+        res.status(200).json(blogPosts);
+    } catch (error) {
+        console.error('Error fetching blog posts:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
@@ -1125,19 +974,31 @@ app.put('/api/blogpage/:id', uploads.single('image_blog_work'), async (req, res)
     console.log(req.body)
     try {
         const { id } = req.params;
+        const { name } = req.body;
 
-        const updates = req.body;
+        const updates = { name };
+
+        // Extract all title-description pairs
+        const content = [];
+        for (let i = 1; req.body[`title${i}`] && req.body[`description${i}`]; i++) {
+            content.push({
+                title: req.body[`title${i}`],
+                description: req.body[`description${i}`]
+            });
+        }
+        updates.content = content;
+
         if (req.file) {
             updates.image = req.file.path;
         }
 
-        const updatedservice = await blog.findByIdAndUpdate(id, updates, { new: true });
-        if (!updatedservice) {
-            return res.status(404).json({ message: 'Team clients not found' });
+        const updatedBlog = await blog.findByIdAndUpdate(id, updates, { new: true });
+        if (!updatedBlog) {
+            return res.status(404).json({ message: 'Blog post not found' });
         }
-        res.status(200).json({ message: 'Team clients updated successfully', member: updatedservice });
+        res.status(200).json({ message: 'Blog post updated successfully', updatedBlog });
     } catch (error) {
-        console.error('Error updating team member:', error);
+        console.error('Error updating blog post:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
