@@ -834,22 +834,30 @@ app.delete('/api/clientrate/:id', async (req, res) => {
 app.post('/api/service', uploads.single('image_client_work'), async (req, res) => {
     try {
         const { name, category, title, dis1, dis2 } = req.body;
+
         if (!req.file) {
             return res.status(400).json({ message: 'Image is required' });
         }
+
         const imagePath = req.file.path;
+
         const serviceadd = new service({ name, category, title, dis1, dis2, image: imagePath });
         const savedserviceadd = await serviceadd.save();
+
+        if (!savedserviceadd) {
+            return res.status(500).json({ message: 'Failed to save service to the database.' });
+        }
 
         res.status(200).json({
             message: 'Service added successfully',
             service: savedserviceadd,
         });
     } catch (error) {
-        console.error('Error adding service:', error);
+        console.error('Error adding service:', error.message || error);
         res.status(500).json({ message: 'Failed to add service. Please try again later.' });
     }
 });
+
 
 app.get('/api/service', async (req, res) => {
     try {
