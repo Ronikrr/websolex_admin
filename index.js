@@ -915,7 +915,6 @@ app.delete('/api/service/:id', async (req, res) => {
 
 
 app.post('/api/blogpage', uploads.single('image_blog_work'), async (req, res) => {
-    console.log(req.body)
     try {
         const { name } = req.body;
         if (!req.file) {
@@ -960,7 +959,7 @@ app.get('/api/blogpage/:id', async (req, res) => {
         const { id } = req.params
         const blogPosts = await blog.findById(id);
         if (!blogPosts) {
-            return res.status(404).json({ message: 'Work not found' }); // Handle non-existent ID
+            return res.status(404).json({ message: 'post not found' });
         }
         res.status(200).json(blogPosts);
     } catch (error) {
@@ -977,8 +976,6 @@ app.put('/api/blogpage/:id', uploads.single('image_blog_work'), async (req, res)
         const { name } = req.body;
 
         const updates = { name };
-
-        // Extract all title-description pairs
         const content = [];
         for (let i = 1; req.body[`title${i}`] && req.body[`description${i}`]; i++) {
             content.push({
