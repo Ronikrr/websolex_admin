@@ -869,6 +869,19 @@ app.get('/api/service', async (req, res) => {
         res.status(500).json({ message: 'Failed to fetch services. Please try again later.' });
     }
 });
+app.get('/api/service/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const member = await service.findById(id);
+        if (!member) {
+            return res.status(404).json({ message: 'service not found' });
+        }
+        res.status(200).json(member);
+    } catch (error) {
+        console.error('Error fetching service:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
 
 app.put('/api/service/:id', uploads.single('image_client_work'), async (req, res) => {
     console.log(req.body)
