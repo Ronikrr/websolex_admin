@@ -869,6 +869,20 @@ app.get('/api/service', async (req, res) => {
         res.status(500).json({ message: 'Failed to fetch services. Please try again later.' });
     }
 });
+app.get('/api/service/:category', async (req, res) => {
+    try {
+        const { category } = req.params;
+        const services = await service.find({ category }); // Query by category
+        if (services.length === 0) {
+            return res.status(404).json({ message: 'No services found for this category' });
+        }
+        res.status(200).json(services);
+    } catch (error) {
+        console.error('Error fetching services by category:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
 app.get('/api/service/:id', async (req, res) => {
     try {
         const { id } = req.params;
