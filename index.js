@@ -831,43 +831,37 @@ app.delete('/api/clientrate/:id', async (req, res) => {
 //////////////////////////////////////////// service page ////////////////////////////////////////////////////////////
 
 
-
-
 app.post('/api/service', uploads.single('image_client_work'), async (req, res) => {
     try {
-        const { name, title, dis1, dis2 } = req.body;
+        const { name, category, title, dis1, dis2 } = req.body;
         if (!req.file) {
             return res.status(400).json({ message: 'Image is required' });
         }
         const imagePath = req.file.path;
-        const serviceadd = new service({ name, title, dis1, dis2, image: imagePath });
+        const serviceadd = new service({ name, category, title, dis1, dis2, image: imagePath });
         const savedserviceadd = await serviceadd.save();
 
         res.status(200).json({
-            message: 'Client member created successfully',
-            member: savedserviceadd,
+            message: 'Service added successfully',
+            service: savedserviceadd,
         });
     } catch (error) {
-        console.error('Error creating client member:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
+        console.error('Error adding service:', error);
+        res.status(500).json({ message: 'Failed to add service. Please try again later.' });
     }
 });
-
 
 app.get('/api/service', async (req, res) => {
     try {
-        const serviceadd = await service.find();
-        // console.log("Fetched team members:", serviceadd);
-        res.status(200).json(serviceadd);
+        const services = await service.find();
+        res.status(200).json(services);
     } catch (error) {
-        console.error('Error fetching team clients:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
+        console.error('Error fetching services:', error);
+        res.status(500).json({ message: 'Failed to fetch services. Please try again later.' });
     }
 });
 
-
 app.put('/api/service/:id', uploads.single('image_client_work'), async (req, res) => {
-    console.log(req.body)
     try {
         const { id } = req.params;
 
@@ -878,30 +872,29 @@ app.put('/api/service/:id', uploads.single('image_client_work'), async (req, res
 
         const updatedservice = await service.findByIdAndUpdate(id, updates, { new: true });
         if (!updatedservice) {
-            return res.status(404).json({ message: 'Team clients not found' });
+            return res.status(404).json({ message: 'Service not found' });
         }
-        res.status(200).json({ message: 'Team clients updated successfully', member: updatedservice });
+        res.status(200).json({ message: 'Service updated successfully', service: updatedservice });
     } catch (error) {
-        console.error('Error updating team member:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
+        console.error('Error updating service:', error);
+        res.status(500).json({ message: 'Failed to update service. Please try again later.' });
     }
 });
-
 
 app.delete('/api/service/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const deletedservice = await service.findByIdAndDelete(id);
         if (!deletedservice) {
-            return res.status(404).json({ message: 'Team member not found' });
+            return res.status(404).json({ message: 'Service not found' });
         }
         if (deletedservice.image && fs.existsSync(deletedservice.image)) {
             fs.unlinkSync(deletedservice.image);
         }
-        res.status(200).json({ message: 'Team member deleted successfully' });
+        res.status(200).json({ message: 'Service deleted successfully' });
     } catch (error) {
-        console.error('Error deleting team member:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
+        console.error('Error deleting service:', error);
+        res.status(500).json({ message: 'Failed to delete service. Please try again later.' });
     }
 });
 
