@@ -832,6 +832,7 @@ app.delete('/api/clientrate/:id', async (req, res) => {
 
 
 app.post('/api/service', uploads.single('image_client_work'), async (req, res) => {
+    console.log(req.body)
     try {
         const { name, category, title, dis1, dis2 } = req.body;
 
@@ -870,6 +871,7 @@ app.get('/api/service', async (req, res) => {
 });
 
 app.put('/api/service/:id', uploads.single('image_client_work'), async (req, res) => {
+    console.log(req.body)
     try {
         const { id } = req.params;
 
