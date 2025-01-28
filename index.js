@@ -701,11 +701,9 @@ app.post('/api/project', async (req, res) => {
 app.get('/api/project', async (req, res) => {
     try {
         // Fetch all projects from the database
-        const projects = await project.findOne();
+        const projects = await project.find();
         console.log(projects)
-        // if (!projects || projects.length === 0) {
-        //     return res.status(404).json({ message: 'No projects found' });
-        // }
+
         res.status(200).json(projects);
     } catch (error) {
         console.error('Error fetching projects:', error);
