@@ -30,6 +30,7 @@ mongoose.connect(MongoDB)
     .catch((err) => {
         console.error('Error connecting to MongoDB:', err);
     });
+mongoose.set('bufferTimeoutMS', 20000); // Increase buffering timeout to 20 seconds
 
 // app.use('/api', teamRoutes);
 //////////// all models connect mongose start //////////////
@@ -946,18 +947,18 @@ app.delete('/api/service/:id', async (req, res) => {
 
 
 app.post('/api/blogpage', uploads.single('image_blog_work'), async (req, res) => {
+    console.log(req.body)
     try {
         const { name } = req.body;
         if (!req.file) {
             return res.status(400).json({ message: 'Image is required' });
         }
         const imagePath = req.file.path;
-
-        // Extract all title-description pairs
         const content = [];
         for (let i = 1; req.body[`title${i}`] && req.body[`description${i}`]; i++) {
             content.push({
                 title: req.body[`title${i}`],
+                subtitle: req.body[`subtitle${i}`],
                 description: req.body[`description${i}`]
             });
         }
