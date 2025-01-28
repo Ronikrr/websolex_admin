@@ -701,7 +701,7 @@ app.post('/api/project', async (req, res) => {
 app.get('/api/project', async (req, res) => {
     try {
         // Fetch all projects from the database
-        const projects = await project.find();
+        const projects = await project.findOne();
         console.log(projects)
         // if (!projects || projects.length === 0) {
         //     return res.status(404).json({ message: 'No projects found' });
@@ -712,28 +712,31 @@ app.get('/api/project', async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
-app.put('/api/project/', async (req, res) => {
+app.put('/api/project', async (req, res) => {
     try {
         const { id, totalClients, completedProjects } = req.body;
 
-        const updatedproject = { totalClients, completedProjects }
-
-        const updatedprojectcount = await project.findOneAndUpdate(
-            id, updatedproject,
-            { new: true }
+        const updatedData = { totalClients, completedProjects };
+        const updatedproject = await project.findOneAndUpdate(
+            { _id: id },
+            updatedData,
+            { new: true } 
         );
+
         if (!updatedproject) {
             return res.status(404).json({ message: 'Project not found' });
         }
+
         res.status(200).json({
             message: 'Project updated successfully',
-            project: updatedproject
+            project: updatedproject,
         });
     } catch (error) {
         console.error('Error updating project:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+
 
 
 
@@ -1283,16 +1286,18 @@ app.put('/api/setstatic', async (req, res) => {
     try {
         const { id, successfulproject, joiningcomparies, registeredcustomers } = req.body;
 
-        // Check if id is provided
+
         if (!id) {
             return res.status(400).json({ message: 'ID is required for updating' });
         }
 
-        // Prepare update data
-        const updatedData = { successfulproject, joiningcomparies, registeredcustomers };
 
-        // Find the contact by ID and update
-        const updatedsetstatic = await SetStatic.findByIdAndUpdate(id, updatedData, { new: true });
+        const updatedData = { successfulproject, joiningcomparies, registeredcustomers };
+        const updatedsetstatic = await SetStatic.findByIdAndUpdate(
+            { _id: id },
+            updatedData,
+            { new: true }
+        );
 
         if (!updatedsetstatic) {
             return res.status(404).json({ message: 'Contact details not found' });
@@ -1308,9 +1313,6 @@ app.put('/api/setstatic', async (req, res) => {
     }
 });
 
-// const router = require('./routers/index')
-
-// router.use('/api', router)
 app.get('/', (req, res) => {
     res.send('<h1>Working Fine</h1>');
 });
