@@ -1273,7 +1273,7 @@ app.post('/api/setstatic', async (req, res) => {
 });
 app.get('/api/setstatic', async (req, res) => {
     try {
-        const savedsetstaticadd = await SetStatic.find();
+        const savedsetstaticadd = await SetStatic.findOne();
         console.log("Fetched team members:", savedsetstaticadd);
         res.status(200).json(savedsetstaticadd);
     } catch (error) {
