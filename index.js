@@ -702,7 +702,7 @@ app.post('/api/project', async (req, res) => {
 app.get('/api/project', async (req, res) => {
     try {
         // Fetch all projects from the database
-        const projects = await project.find();
+        const projects = await project.findOne();
         console.log(projects)
 
         res.status(200).json(projects);
