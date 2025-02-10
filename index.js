@@ -1130,7 +1130,7 @@ app.post('/api/socialdetails', async (req, res) => {
 });
 app.get('/api/socialdetails', async (req, res) => {
     try {
-        const socialdetailsadd = await socialdetails.find();
+        const socialdetailsadd = await socialdetails.findOne();
         console.log("Fetched team members:", socialdetailsadd);
         res.status(200).json(socialdetailsadd);
     } catch (error) {
