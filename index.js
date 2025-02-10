@@ -1072,7 +1072,7 @@ app.post('/api/contactdetails', async (req, res) => {
 });
 app.get('/api/contactdetails', async (req, res) => {
     try {
-        const contactdetailsadd = await contactdetails.find();
+        const contactdetailsadd = await contactdetails.findOne();
         console.log("Fetched team members:", contactdetailsadd);
         res.status(200).json(contactdetailsadd);
     } catch (error) {
