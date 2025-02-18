@@ -742,6 +742,8 @@ app.put('/api/project', async (req, res) => {
 //////////////////////////////////////////// client rate///////////////!SECTION
 
 app.post('/api/clientrate', uploads.single('image_work_client'), async (req, res) => {
+    // console.log(req.body)
+    console.log(req.file)
     try {
         const { name, description, business, rate } = req.body;
 
