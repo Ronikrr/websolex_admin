@@ -508,6 +508,8 @@ app.delete('/api/teampage/:id', async (req, res) => {
 
 
 app.post('/api/valuedclients', uploads.single('images'), async (req, res) => {
+    console.log(req.body)
+    console.log(req.file)
     try {
         const { name } = req.body;
 
@@ -542,15 +544,18 @@ app.get('/api/valuedclients', async (req, res) => {
     }
 });
 app.put('/api/valuedclients/:id', uploads.single('images'), async (req, res) => {
+    console.log("Received _id:", req.body._id);
+
+
     try {
-        const { id } = req.params;
+        const { _id } = req.params;
 
         const updates = req.body;
         if (req.file) {
             updates.image = req.file.path;
         }
 
-        const updatedclients = await Valueclient.findByIdAndUpdate(id, updates, { new: true });
+        const updatedclients = await Valueclient.findByIdAndUpdate(_id, updates, { new: true });
         if (!updatedclients) {
             return res.status(404).json({ message: 'Team clients not found' });
         }
