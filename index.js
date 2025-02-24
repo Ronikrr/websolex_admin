@@ -140,9 +140,9 @@ app.patch('/users/:id', async (req, res) => {
         res.status(500).json({ error: 'Error updating user status' });
     }
 });
-app.patch('/users/:id', async (req, res) => {
+app.patch('/usersrole/:id', async (req, res) => {
     try {
-        console.log('Request received:', req.body);
+        console.log('Request role received:', req.body);
         const { id } = req.params;
         const { role } = req.body;
 
