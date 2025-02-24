@@ -140,6 +140,28 @@ app.patch('/users/:id', async (req, res) => {
         res.status(500).json({ error: 'Error updating user status' });
     }
 });
+app.patch('/users/:id', async (req, res) => {
+    try {
+        console.log('Request received:', req.body);
+        const { id } = req.params;
+        const { role } = req.body;
+
+        if (!['user', 'admin'].includes(role)) {
+            return res.status(400).json({ error: 'Invalid role' });
+        }
+
+        const user = await User.findByIdAndUpdate(id, { role }, { new: true });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        console.log('Updated user:', user);
+        res.json({ message: 'role updated successfully', user });
+    } catch (error) {
+        console.error('Error updating role:', error);
+        res.status(500).json({ error: 'Error updating user role' });
+    }
+});
 app.delete('/users/:id', async (req, res) => {
     try {
         const { id } = req.params;
