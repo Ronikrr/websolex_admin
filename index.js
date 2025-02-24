@@ -277,6 +277,8 @@ app.get('/profile', authenticate, async (req, res) => {
             email: updatedUser.email,
             phoneNo: updatedUser.phoneNo,
             profileImage: updatedUser.profileImage,
+            status: updatedUser.status,
+            role: updatedUser.role
         };
 
         res.json({ message: "Profile updated successfully.", user: userResponse });
