@@ -748,7 +748,7 @@ app.put('/api/project', async (req, res) => {
         const updatedproject = await project.findOneAndUpdate(
             { _id: id },
             updatedData,
-            { new: true } 
+            { new: true }
         );
 
         if (!updatedproject) {
@@ -1159,6 +1159,8 @@ app.post('/api/socialdetails', async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+
+
 app.get('/api/socialdetails', async (req, res) => {
     try {
         const socialdetailsadd = await socialdetails.findOne();
@@ -1183,21 +1185,23 @@ app.put('/api/socialdetails', async (req, res) => {
         const updatedData = { facebook, whatsapp, instagram, linkedin };
 
         // Find the contact by ID and update
-        const updatedsocialdetails = await socialdetails.findByIdAndUpdate(id, updatedData, { new: true });
+        const updatedSocialDetails = await contactdetails.findByIdAndUpdate(id, updatedData, { new: true });
 
-        if (!updatedsocialdetails) {
+        if (!updatedSocialDetails) {
             return res.status(404).json({ message: 'Contact details not found' });
         }
 
         res.status(200).json({
             message: 'Client member updated successfully',
-            member: updatedsocialdetails,
+            member: updatedSocialDetails,
         });
     } catch (error) {
         console.error('Error updating client member:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+
+
 
 ////////////////////////////////////////////////////////////////////// employee //////////////////////////////////////////////
 
