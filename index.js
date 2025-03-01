@@ -388,6 +388,7 @@ app.post("/contactform", async (req, res) => {
 
 // GET Endpoint
 app.get('/view_contactform', async (req, res) => {
+    console.log(req.body)
     try {
         const view_contactform = await ContactForm.find();
         res.json(view_contactform);
