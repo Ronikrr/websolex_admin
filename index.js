@@ -24,13 +24,11 @@ const corsOptions = {
             callback(new Error('Not allowed by CORS'));
         }
     },
-    credentials: true,  // Allow sending credentials (cookies, auth headers, etc.)
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],  // Specify allowed methods
-    allowedHeaders: ['Content-Type', 'Authorization']  // Specify allowed headers
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 };
-// const secretKey = crypto.randomBytes(10).toString('hex');
-// console.log(secretKey)
-// const teamRoutes = require('./teampage')
+
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(cookieParser());
