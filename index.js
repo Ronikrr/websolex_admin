@@ -10,10 +10,28 @@ require('dotenv').config();
 const app = express();
 const cookieParser = require('cookie-parser');
 const uploads = require('./multer');
+const allowedOrigins = [
+    'https://websolex-admin-panal.vercel.app',
+    'https://www.websolexinfotech.com/',
+    'http://localhost:3000',
+    'http://localhost:3001'
+];
+const corsOptions = {
+    origin: function (origin, callback) {
+        if (allowedOrigins.includes(origin) || !origin) {  // Allow if origin is in the allowed list
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,  // Allow sending credentials (cookies, auth headers, etc.)
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Specify allowed methods
+    allowedHeaders: ['Content-Type', 'Authorization']  // Specify allowed headers
+};
 // const secretKey = crypto.randomBytes(10).toString('hex');
 // console.log(secretKey)
 // const teamRoutes = require('./teampage')
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(cookieParser());
 const path = require("path");
