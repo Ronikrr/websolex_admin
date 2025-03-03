@@ -25,7 +25,7 @@ const corsOptions = {
         }
     },
     credentials: true,  // Allow sending credentials (cookies, auth headers, etc.)
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Specify allowed methods
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],  // Specify allowed methods
     allowedHeaders: ['Content-Type', 'Authorization']  // Specify allowed headers
 };
 // const secretKey = crypto.randomBytes(10).toString('hex');
