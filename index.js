@@ -12,7 +12,7 @@ const cookieParser = require('cookie-parser');
 const uploads = require('./multer');
 const allowedOrigins = [
     'https://websolex-admin-panal.vercel.app',
-    'https://www.websolexinfotech.com/',
+    'https://www.websolexinfotech.com',
     'http://localhost:3000',
     'http://localhost:3001'
 ];
@@ -62,6 +62,7 @@ const service = require('./model/service')
 const blog = require('./model/blogpage');
 const contactdetails = require('./model/contactdetails');
 const socialdetails = require('./model/social');
+const workLogSchema = require('./model/worklog')
 const employee = require('./model/employye');
 const subscribe = require('./model/subscribe')
 const SetStatic = require('./model/setstatic')
@@ -1363,6 +1364,48 @@ app.put('/api/setstatic', async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+
+// app.post('/add', async (req, res) => {
+//     const { userId, email, work } = req.body;
+//     const today = new Date().toISOString().split('T')[0];
+//     try {
+//         const workinglog = new workLogSchema({ userId, email, date: today, work })
+//         const saveworklog = await workinglog.save()
+//         res.json({ message: 'Work added successfully', saveworklog });
+//     } catch (error) {
+
+//     }
+// })
+
+// app.get('/history/:userId', async (req, res) => {
+//     const { userId } = req.params;
+
+//     try {
+//         const workHistory = await workLogSchema.find({ userId }).sort({ date: -1 });
+//         res.json(workHistory);
+//     } catch (err) {
+//         res.status(500).json({ message: 'Error fetching history', error: err.message });
+//     }
+// })
+// app.get('/all-day-history', async (req, res) => {
+//     try {
+//         const workHistory = await WorkLog.find().sort({ date: -1 });
+
+//         const groupedByDate = workHistory.reduce((acc, log) => {
+//             if (!acc[log.date]) {
+//                 acc[log.date] = [];
+//             }
+//             acc[log.date].push(log);
+//             return acc;
+//         }, {});
+
+//         res.json(groupedByDate);
+//     } catch (err) {
+//         res.status(500).json({ message: 'Error fetching all day history', error: err.message });
+//     }
+// });
+
+
 
 app.get('/', (req, res) => {
     res.send('<h1>Working Fine</h1>');
