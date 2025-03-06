@@ -10,26 +10,26 @@ require('dotenv').config();
 const app = express();
 const cookieParser = require('cookie-parser');
 const uploads = require('./multer');
-const allowedOrigins = [
-    'https://websolex-admin-panal.vercel.app',
-    'https://www.websolexinfotech.com',
-    'http://localhost:3000',
-    'http://localhost:3001'
-];
-const corsOptions = {
-    origin: function (origin, callback) {
-        if (allowedOrigins.includes(origin) || !origin) {  // Allow if origin is in the allowed list
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-};
+// const allowedOrigins = [
+//     'https://websolex-admin-panal.vercel.app',
+//     'https://www.websolexinfotech.com',
+//     'http://localhost:3000',
+//     'http://localhost:3001'
+// ];
+// const corsOptions = {
+//     origin: function (origin, callback) {
+//         if (allowedOrigins.includes(origin) || !origin) {  // Allow if origin is in the allowed list
+//             callback(null, true);
+//         } else {
+//             callback(new Error('Not allowed by CORS'));
+//         }
+//     },
+//     credentials: true,
+//     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+//     allowedHeaders: ['Content-Type', 'Authorization']
+// };
 
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(bodyParser.json());
 app.use(cookieParser());
 const path = require("path");
@@ -62,7 +62,7 @@ const service = require('./model/service')
 const blog = require('./model/blogpage');
 const contactdetails = require('./model/contactdetails');
 const socialdetails = require('./model/social');
-const workLogSchema = require('./model/worklog')
+const worklog = require('./model/worklog')
 const employee = require('./model/employye');
 const subscribe = require('./model/subscribe')
 const SetStatic = require('./model/setstatic')
@@ -1366,44 +1366,139 @@ app.put('/api/setstatic', async (req, res) => {
 });
 
 // app.post('/add', async (req, res) => {
-//     const { userId, email, work } = req.body;
+//     console.log(req.body)
+//     const { userId, email, work, projectName, startTime, endTime, totalHours } = req.body;
 //     const today = new Date().toISOString().split('T')[0];
+
 //     try {
-//         const workinglog = new workLogSchema({ userId, email, date: today, work })
-//         const saveworklog = await workinglog.save()
-//         res.json({ message: 'Work added successfully', saveworklog });
+//         // Create a new worklog instance
+//         const workinglog = new worklog({
+//             userId,
+//             email,
+//             date: today,
+//             work,
+//             projectName,
+//             startTime,
+//             endTime,
+//             totalHours
+//         });
+
+//         // Save the instance to the database
+//         const saveworklog = await workinglog.save();
+
+//         res.json(saveworklog);
 //     } catch (error) {
-
-//     }
-// })
-
-// app.get('/history/:userId', async (req, res) => {
-//     const { userId } = req.params;
-
-//     try {
-//         const workHistory = await workLogSchema.find({ userId }).sort({ date: -1 });
-//         res.json(workHistory);
-//     } catch (err) {
-//         res.status(500).json({ message: 'Error fetching history', error: err.message });
-//     }
-// })
-// app.get('/all-day-history', async (req, res) => {
-//     try {
-//         const workHistory = await WorkLog.find().sort({ date: -1 });
-
-//         const groupedByDate = workHistory.reduce((acc, log) => {
-//             if (!acc[log.date]) {
-//                 acc[log.date] = [];
-//             }
-//             acc[log.date].push(log);
-//             return acc;
-//         }, {});
-
-//         res.json(groupedByDate);
-//     } catch (err) {
-//         res.status(500).json({ message: 'Error fetching all day history', error: err.message });
+//         res.status(500).json({
+//             message: 'Failed to add work log',
+//             error: error.message
+//         });
 //     }
 // });
+// app.get('/worklogbyuser/:userId', async (req, res) => {
+//     console.log(req.body)
+//     const { userId, email } = req.query;  // Getting query params
+
+//     try {
+//         let filter = {};
+//         if (userId) {
+//             filter.userId = userId;
+//         }
+//         if (email) {
+//             filter.email = email;
+//         }
+
+//         const userWorkLogs = await worklog.find(filter);
+
+//         res.status(200).json(userWorkLogs);
+//     } catch (error) {
+//         console.error("Error fetching work logs by user:", error);
+//         res.status(500).json({ message: "Internal server error" });
+//     }
+// });
+
+
+
+
+// app.get('/all-day-history', async (req, res) => {
+
+//     try {
+//         const workHistory = await worklog.find();
+//         res.status(200).json(workHistory);
+//     } catch (error) {
+//         console.error("Error fetching users:", error);
+//         res.status(500).json({ message: "Internal server error" });
+//     }
+// });
+
+// POST: Add work log
+app.post('/add', async (req, res) => {
+    const { userId, email, work, projectName, startTime, endTime, totalHours } = req.body;
+    const today = new Date().toISOString().split('T')[0];
+
+    try {
+        const workinglog = new worklog({
+            userId,
+            email,
+            date: today,
+            work,
+            projectName,
+            startTime,
+            endTime,
+            totalHours
+        });
+
+        const saveworklog = await workinglog.save();
+        res.json(saveworklog);
+    } catch (error) {
+        res.status(500).json({
+            message: 'Failed to add work log',
+            error: error.message
+        });
+    }
+});
+
+// GET: All work logs (for admin)
+app.get('/all-day-history', async (req, res) => {
+    console.log(req.body)
+    try {
+        const today = new Date();
+        const fiveDaysAgo = new Date();
+        fiveDaysAgo.setDate(today.getDate() - 5);
+
+        const workHistory = await worklog.find({
+            date: {
+                $gte: fiveDaysAgo.toISOString().split('T')[0], // >= 5 days ago
+                $lte: today.toISOString().split('T')[0],       // <= today
+            }
+        });
+
+        res.status(200).json(workHistory);
+    } catch (error) {
+        console.error("Error fetching work history:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+
+// GET: Work logs for specific user (with optional date filter)
+app.get('/worklogbyuser/:userId', async (req, res) => {
+    const { userId } = req.params;
+    const { date } = req.query;
+
+    try {
+        const filter = { userId };
+
+        if (date) {
+            filter.date = date;
+        }
+
+        const userWorkLogs = await worklog.find(filter);
+        res.status(200).json(userWorkLogs);
+    } catch (error) {
+        console.error("Error fetching user work logs:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
 
 
 
