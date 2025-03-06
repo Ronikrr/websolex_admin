@@ -1365,73 +1365,8 @@ app.put('/api/setstatic', async (req, res) => {
     }
 });
 
-// app.post('/add', async (req, res) => {
-//     console.log(req.body)
-//     const { userId, email, work, projectName, startTime, endTime, totalHours } = req.body;
-//     const today = new Date().toISOString().split('T')[0];
-
-//     try {
-//         // Create a new worklog instance
-//         const workinglog = new worklog({
-//             userId,
-//             email,
-//             date: today,
-//             work,
-//             projectName,
-//             startTime,
-//             endTime,
-//             totalHours
-//         });
-
-//         // Save the instance to the database
-//         const saveworklog = await workinglog.save();
-
-//         res.json(saveworklog);
-//     } catch (error) {
-//         res.status(500).json({
-//             message: 'Failed to add work log',
-//             error: error.message
-//         });
-//     }
-// });
-// app.get('/worklogbyuser/:userId', async (req, res) => {
-//     console.log(req.body)
-//     const { userId, email } = req.query;  // Getting query params
-
-//     try {
-//         let filter = {};
-//         if (userId) {
-//             filter.userId = userId;
-//         }
-//         if (email) {
-//             filter.email = email;
-//         }
-
-//         const userWorkLogs = await worklog.find(filter);
-
-//         res.status(200).json(userWorkLogs);
-//     } catch (error) {
-//         console.error("Error fetching work logs by user:", error);
-//         res.status(500).json({ message: "Internal server error" });
-//     }
-// });
-
-
-
-
-// app.get('/all-day-history', async (req, res) => {
-
-//     try {
-//         const workHistory = await worklog.find();
-//         res.status(200).json(workHistory);
-//     } catch (error) {
-//         console.error("Error fetching users:", error);
-//         res.status(500).json({ message: "Internal server error" });
-//     }
-// });
-
 // POST: Add work log
-app.post('/add', async (req, res) => {
+app.post('/add', authenticate, async (req, res) => {
     const { userId, email, work, projectName, startTime, endTime, totalHours } = req.body;
     const today = new Date().toISOString().split('T')[0];
 
