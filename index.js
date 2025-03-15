@@ -10,6 +10,7 @@ require('dotenv').config();
 const app = express();
 const cookieParser = require('cookie-parser');
 const uploads = require('./multer');
+
 // const allowedOrigins = [
 //     'https://websolex-admin-panal.vercel.app',
 //     'https://www.websolexinfotech.com',
