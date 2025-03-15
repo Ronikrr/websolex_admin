@@ -353,7 +353,7 @@ app.put(
     uploads.single("profileImage"),
     async (req, res) => {
         try {
-            const { email, username, phoneNo } = req.body;
+            const { email, username, phoneNo, workInCompany } = req.body;
             const updates = {};
             if (email) updates.email = email;
             if (username) updates.username = username;
