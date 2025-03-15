@@ -297,12 +297,13 @@ app.post("/login", async (req, res) => {
 
 app.get("/profile", authenticate, async (req, res) => {
     try {
-        const { email, username, phoneNo, profileImage } = req.body;
+        const { email, username, phoneNo, profileImage, workInCompany } = req.body;
 
         const updates = {};
         if (email) updates.email = email;
         if (username) updates.username = username;
         if (phoneNo) updates.phoneNo = phoneNo;
+        if (workInCompany) updates.workInCompany = workInCompany;
         if (profileImage) updates.profileImage = profileImage;
 
         const updatedUser = await User.findByIdAndUpdate(
@@ -328,6 +329,7 @@ app.get("/profile", authenticate, async (req, res) => {
             profileImage: updatedUser.profileImage,
             status: updatedUser.status,
             role: updatedUser.role,
+            workInCompany: updatedUser.workInCompany,
         };
 
         res.json({ message: "Profile updated successfully.", user: userResponse });
