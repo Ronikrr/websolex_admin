@@ -359,23 +359,43 @@ app.get("/profile", authenticate, async (req, res) => {
         res.status(500).json({ message: "Internal server error." });
     }
 });
-
-//////////////////////////////////////////////   view couts
-
 app.put(
     "/profile",
     authenticate,
     uploads.single("profileImage"),
     async (req, res) => {
         try {
-            const { email, username, phoneNo } = req.body;
+            const { email, username, phoneNo, workInCompany } = req.body;
             const updates = {};
+
             if (email) updates.email = email;
             if (username) updates.username = username;
             if (phoneNo) updates.phoneNo = phoneNo;
+
+            // ✅ Handle workInCompany
+            if (typeof workInCompany === 'string') {
+                const allowedValues = [
+                    'Digital Marketing',
+                    'React.js Developer',
+                    'Node.js Developer',
+                    'Full Stack Developer',
+                    'Shopify Developer',
+                    'WordPress Developer'
+                ];
+
+                if (allowedValues.includes(workInCompany)) {
+                    updates.workInCompany = workInCompany;
+                } else {
+                    return res.status(400).json({
+                        message: `Invalid workInCompany value. Allowed values are: ${allowedValues.join(', ')}.`,
+                    });
+                }
+            }
+
             if (req.file) {
                 updates.profileImage = req.file.path;
             }
+
             const updatedUser = await User.findByIdAndUpdate(
                 req.user.id,
                 { $set: updates },
@@ -393,6 +413,7 @@ app.put(
                 username: updatedUser.username,
                 email: updatedUser.email,
                 phoneNo: updatedUser.phoneNo,
+                workInCompany: updatedUser.workInCompany,
                 profileImage: updatedUser.profileImage,
             };
 
@@ -411,6 +432,9 @@ app.put(
         }
     }
 );
+
+
+
 
 /////////////////////////////////////////view count //////////////
 
