@@ -358,7 +358,6 @@ app.put(
             if (email) updates.email = email;
             if (username) updates.username = username;
             if (phoneNo) updates.phoneNo = phoneNo;
-            if (workInCompany) updates.workInCompany = workInCompany;
             if (req.file) {
                 updates.profileImage = req.file.path;
             }
@@ -380,7 +379,6 @@ app.put(
                 email: updatedUser.email,
                 phoneNo: updatedUser.phoneNo,
                 profileImage: updatedUser.profileImage,
-                workInCompany: updatedUser.workInCompany,
             };
 
             res.json({
