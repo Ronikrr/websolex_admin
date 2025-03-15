@@ -346,22 +346,27 @@ app.get("/profile", authenticate, async (req, res) => {
 });
 
 //////////////////////////////////////////////   view couts
-
 app.put(
     "/profile",
     authenticate,
     uploads.single("profileImage"),
     async (req, res) => {
         try {
+            if (!req.user || !req.user.id) {
+                return res.status(401).json({ message: "Unauthorized" });
+            }
+
             const { email, username, phoneNo, workInCompany } = req.body;
             const updates = {};
+
             if (email) updates.email = email;
             if (username) updates.username = username;
             if (phoneNo) updates.phoneNo = phoneNo;
             if (workInCompany) updates.workInCompany = workInCompany;
-            if (req.file) {
+            if (req.file && req.file.path) {
                 updates.profileImage = req.file.path;
             }
+
             const updatedUser = await User.findByIdAndUpdate(
                 req.user.id,
                 { $set: updates },
@@ -391,13 +396,16 @@ app.put(
             console.error("Error updating profile:", error);
 
             if (error.code === 11000) {
-                return res.status(400).json({ message: "Email must be unique." });
+                if (error.keyPattern.email) {
+                    return res.status(400).json({ message: "Email already exists." });
+                }
             }
 
             res.status(500).json({ message: "Internal server error." });
         }
     }
 );
+
 
 /////////////////////////////////////////view count //////////////
 
