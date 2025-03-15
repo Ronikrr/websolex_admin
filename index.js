@@ -259,8 +259,10 @@ app.post("/login", async (req, res) => {
             return res.status(400).json({ message: "Invalid email" });
         }
 
-        // Special case for admin login
+        // ✅ Special case for admin login
         if (email === "admin@gmail.com" && password === "admin@123") {
+            if (!JWT_SECRET_KEY) throw new Error("JWT secret key is missing");
+
             const token = jwt.sign(
                 { id: user._id, email: user.email, role: "admin" },
                 JWT_SECRET_KEY,
@@ -269,32 +271,39 @@ app.post("/login", async (req, res) => {
 
             return res.json({ message: "Admin login successful", token });
         }
-        // General user logic
+
+        // ✅ General user logic
         if (user.status !== "Approved") {
-            return res.status(403).send({ message: `Approval is ${user.status}` });
+            return res.status(403).json({ message: `Approval is ${user.status}` });
         }
 
-        if (user.password !== password) {
+        // ✅ Compare hashed passwords
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
             return res.status(400).json({ message: "Invalid password" });
         }
+
+        // ✅ Create JWT token
+        if (!JWT_SECRET_KEY) throw new Error("JWT secret key is missing");
 
         const token = jwt.sign(
             { id: user._id, email: user.email },
             JWT_SECRET_KEY,
             { expiresIn: "1h" }
         );
-        const logintime = await LoginHistory.create({
+
+        // ✅ Save login history
+        await LoginHistory.create({
             userId: user._id,
             loginTime: new Date()
-        })
-        await logintime.save();
+        });
+
         res.json({ message: "Login successful", token });
     } catch (error) {
-        console.error("Error during login:", error);
+        console.error("Error during login:", error.message);
         res.status(500).json({ message: "Internal server error." });
     }
 });
-
 app.get("/profile", authenticate, async (req, res) => {
     try {
         const { email, username, phoneNo, profileImage, workInCompany } = req.body;
