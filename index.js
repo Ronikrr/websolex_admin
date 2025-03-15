@@ -259,10 +259,8 @@ app.post("/login", async (req, res) => {
             return res.status(400).json({ message: "Invalid email" });
         }
 
-        // ✅ Special case for admin login
+        // Special case for admin login
         if (email === "admin@gmail.com" && password === "admin@123") {
-            if (!JWT_SECRET_KEY) throw new Error("JWT secret key is missing");
-
             const token = jwt.sign(
                 { id: user._id, email: user.email, role: "admin" },
                 JWT_SECRET_KEY,
@@ -271,64 +269,40 @@ app.post("/login", async (req, res) => {
 
             return res.json({ message: "Admin login successful", token });
         }
-
-        // ✅ General user logic
+        // General user logic
         if (user.status !== "Approved") {
-            return res.status(403).json({ message: `Approval is ${user.status}` });
+            return res.status(403).send({ message: `Approval is ${user.status}` });
         }
 
-        // ✅ Compare hashed passwords
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
+        if (user.password !== password) {
             return res.status(400).json({ message: "Invalid password" });
         }
-
-        // ✅ Create JWT token
-        if (!JWT_SECRET_KEY) throw new Error("JWT secret key is missing");
 
         const token = jwt.sign(
             { id: user._id, email: user.email },
             JWT_SECRET_KEY,
             { expiresIn: "1h" }
         );
-
-        // ✅ Save login history
-        await LoginHistory.create({
+        const logintime = await LoginHistory.create({
             userId: user._id,
             loginTime: new Date()
-        });
-
+        })
+        await logintime.save();
         res.json({ message: "Login successful", token });
     } catch (error) {
-        console.error("Error during login:", error.message);
+        console.error("Error during login:", error);
         res.status(500).json({ message: "Internal server error." });
     }
 });
+
 app.get("/profile", authenticate, async (req, res) => {
     try {
-        const { email, username, phoneNo, profileImage, workInCompany } = req.body;
+        const { email, username, phoneNo, profileImage } = req.body;
 
         const updates = {};
         if (email) updates.email = email;
         if (username) updates.username = username;
         if (phoneNo) updates.phoneNo = phoneNo;
-        if (typeof workInCompany === 'string') { // ✅ Ensure it's a string
-            // ✅ Validate against allowed enum values
-            const allowedValues = [
-                'Digital Marketing',
-                'React.js Developer',
-                'Node.js Developer',
-                'Full Stack Developer',
-                'Shopify Developer',
-                'WordPress Developer'
-            ];
-
-            if (allowedValues.includes(workInCompany)) {
-                updates.workInCompany = workInCompany;
-            } else {
-                return res.status(400).json({ message: "Invalid workInCompany value." });
-            }
-        }
         if (profileImage) updates.profileImage = profileImage;
 
         const updatedUser = await User.findByIdAndUpdate(
@@ -351,7 +325,6 @@ app.get("/profile", authenticate, async (req, res) => {
             password: updatedUser.password,
             email: updatedUser.email,
             phoneNo: updatedUser.phoneNo,
-            workInCompany: updatedUser.workInCompany,
             profileImage: updatedUser.profileImage,
             status: updatedUser.status,
             role: updatedUser.role,
@@ -362,49 +335,30 @@ app.get("/profile", authenticate, async (req, res) => {
         console.error("Error updating profile:", error);
 
         if (error.code === 11000) {
+            // Handle unique constraint errors (email)
             return res.status(400).json({ message: "Email must be unique." });
         }
 
         res.status(500).json({ message: "Internal server error." });
     }
 });
+
+//////////////////////////////////////////////   view couts
+
 app.put(
     "/profile",
     authenticate,
     uploads.single("profileImage"),
     async (req, res) => {
         try {
-            const { email, username, phoneNo, workInCompany } = req.body;
+            const { email, username, phoneNo } = req.body;
             const updates = {};
-
             if (email) updates.email = email;
             if (username) updates.username = username;
             if (phoneNo) updates.phoneNo = phoneNo;
-
-            // ✅ Handle workInCompany
-            if (typeof workInCompany === 'string') {
-                const allowedValues = [
-                    'Digital Marketing',
-                    'React.js Developer',
-                    'Node.js Developer',
-                    'Full Stack Developer',
-                    'Shopify Developer',
-                    'WordPress Developer'
-                ];
-
-                if (allowedValues.includes(workInCompany)) {
-                    updates.workInCompany = workInCompany;
-                } else {
-                    return res.status(400).json({
-                        message: `Invalid workInCompany value. Allowed values are: ${allowedValues.join(', ')}.`,
-                    });
-                }
-            }
-
             if (req.file) {
                 updates.profileImage = req.file.path;
             }
-
             const updatedUser = await User.findByIdAndUpdate(
                 req.user.id,
                 { $set: updates },
@@ -422,7 +376,6 @@ app.put(
                 username: updatedUser.username,
                 email: updatedUser.email,
                 phoneNo: updatedUser.phoneNo,
-                workInCompany: updatedUser.workInCompany,
                 profileImage: updatedUser.profileImage,
             };
 
@@ -441,9 +394,6 @@ app.put(
         }
     }
 );
-
-
-
 
 /////////////////////////////////////////view count //////////////
 
@@ -1395,6 +1345,115 @@ app.put("/api/socialdetails", async (req, res) => {
 });
 
 ////////////////////////////////////////////////////////////////////// employee //////////////////////////////////////////////
+
+// app.post("/api/employee", async (req, res) => {
+//     try {
+//         console.log(req.body);
+//         const {
+//             name,
+//             designation,
+//             department,
+//             email,
+//             phone,
+//             salary,
+//             join_date,
+//             status,
+//         } = req.body;
+//         const newEmployee = new employee({
+//             name,
+//             designation,
+//             department,
+//             email,
+//             phone,
+//             salary,
+//             join_date,
+//             status,
+//         });
+//         const savedEmployee = await newEmployee.save();
+
+//         res.status(200).json({
+//             message: "employee details addad successfully",
+//             emplyee: savedEmployee,
+//         });
+//     } catch (error) {
+//         if (error.name === "ValidationError") {
+//             const errors = Object.values(error.errors).map((err) => err.message);
+//             return res.status(400).json({ message: "Validation Error", errors });
+//         }
+//         console.error("Error creating employee details:", error);
+//         res.status(500).json({ message: "Internal Server Error" });
+//     }
+// });
+// app.get("/api/employee", async (req, res) => {
+//     try {
+//         const employeedetailsadd = await employee.find();
+//         console.log("Fetched team members:", employeedetailsadd);
+//         res.status(200).json(employeedetailsadd);
+//     } catch (error) {
+//         console.error("Error fetching team clients:", error);
+//         res.status(500).json({ message: "Internal Server Error" });
+//     }
+// });
+
+// app.put("/api/employee/:id", async (req, res) => {
+//     console.log(req.body);
+//     try {
+//         const { id } = req.params;
+
+//         const updates = req.body;
+//         const updatedemployee = await employee.findByIdAndUpdate(id, updates, {
+//             new: true,
+//         });
+//         if (!updatedemployee) {
+//             return res.status(404).json({ message: "Temployee not found" });
+//         }
+//         res
+//             .status(200)
+//             .json({
+//                 message: "employee updated successfully",
+//                 member: updatedemployee,
+//             });
+//     } catch (error) {
+//         console.error("Error updating employee :", error);
+//         res.status(500).json({ message: "Internal Server Error" });
+//     }
+// });
+
+// app.delete("/api/employee/:id", async (req, res) => {
+//     try {
+//         const { id } = req.params;
+//         const deletedemployee = await employee.findByIdAndDelete(id);
+//         if (!deletedemployee) {
+//             return res.status(404).json({ message: " employee not found" });
+//         }
+//         res.status(200).json({ message: "employee deleted successfully" });
+//     } catch (error) {
+//         console.error("Error deleting employee:", error);
+//         res.status(500).json({ message: "Internal Server Error" });
+//     }
+// });
+// app.patch("/api/employee/:id", async (req, res) => {
+//     const { id } = req.params;
+//     const { status } = req.body;
+//     if (!status) {
+//         return res.status(400).json({ message: "status is required" });
+//     }
+
+//     try {
+//         const employees = await employee.findByIdAndUpdate(
+//             id,
+//             { status },
+//             { new: true }
+//         );
+//         if (!employees) {
+//             return res.status(404).json({ message: "Employee not found" });
+//         }
+//         return res.status(200).json(employee);
+//     } catch (error) {
+//         console.error("Error updating employee status:", error);
+//         return res.status(500).json({ message: "Internal Server Error" });
+//     }
+// });
 app.post("/api/setstatic", async (req, res) => {
     try {
         const { successfulproject, joiningcomparies, registeredcustomers } =
