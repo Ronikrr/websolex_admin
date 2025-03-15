@@ -10,7 +10,7 @@ const UserSchema = new mongoose.Schema({
     status: { type: String, default: 'pending' },
     role: { type: String, enum: ['user', 'admin', 'employee'], default: 'user' },
     workInCompany: {
-        type: String, // 🔥 Changed from [String] to String
+        type: String, 
         enum: [
             'Digital Marketing',
             'React.js Developer',
