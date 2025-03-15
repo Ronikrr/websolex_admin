@@ -10,7 +10,7 @@ const UserSchema = new mongoose.Schema({
     status: { type: String, default: 'pending' },
     role: { type: String, enum: ['user', 'admin', 'employee'], default: 'user' },
     workInCompany: {
-        type: [String],
+        type: String, // 🔥 Changed from [String] to String
         enum: [
             'Digital Marketing',
             'React.js Developer',
@@ -18,13 +18,11 @@ const UserSchema = new mongoose.Schema({
             'Full Stack Developer',
             'Shopify Developer',
             'WordPress Developer',
-
         ],
-        default: []
+        default: ''
     }
 });
 
 const User = mongoose.model('Users', UserSchema);
 
 module.exports = User;
-

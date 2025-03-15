@@ -303,7 +303,23 @@ app.get("/profile", authenticate, async (req, res) => {
         if (email) updates.email = email;
         if (username) updates.username = username;
         if (phoneNo) updates.phoneNo = phoneNo;
-        if (workInCompany) updates.workInCompany = workInCompany
+        if (typeof workInCompany === 'string') { // ✅ Ensure it's a string
+            // ✅ Validate against allowed enum values
+            const allowedValues = [
+                'Digital Marketing',
+                'React.js Developer',
+                'Node.js Developer',
+                'Full Stack Developer',
+                'Shopify Developer',
+                'WordPress Developer'
+            ];
+
+            if (allowedValues.includes(workInCompany)) {
+                updates.workInCompany = workInCompany;
+            } else {
+                return res.status(400).json({ message: "Invalid workInCompany value." });
+            }
+        }
         if (profileImage) updates.profileImage = profileImage;
 
         const updatedUser = await User.findByIdAndUpdate(
@@ -337,7 +353,6 @@ app.get("/profile", authenticate, async (req, res) => {
         console.error("Error updating profile:", error);
 
         if (error.code === 11000) {
-        // Handle unique constraint errors (email)
             return res.status(400).json({ message: "Email must be unique." });
         }
 
@@ -849,7 +864,7 @@ app.post(
     "/api/clientrate",
     uploads.single("image_work_client"),
     async (req, res) => {
-    // console.log(req.body)
+        // console.log(req.body)
         console.log(req.file);
         try {
             const { name, description, business, rate } = req.body;
