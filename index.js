@@ -10,6 +10,11 @@ require("dotenv").config();
 const app = express();
 const cookieParser = require("cookie-parser");
 const uploads = require("./multer");
+const http = require('http');
+const { initSocket, getIo } = require('./socket')
+
+const server = http.createServer(app);
+initSocket(server)
 
 // const allowedOrigins = [
 //     'https://websolex-admin-panal.vercel.app',
@@ -1536,6 +1541,12 @@ app.post("/add", authenticate, async (req, res) => {
         });
 
         const saveworklog = await workinglog.save();
+        getIo().emit("notification", {
+            message: `New work log added by ${email}`,
+            work,
+            projectName,
+        });
+
         res.json(saveworklog);
     } catch (error) {
         res.status(500).json({
