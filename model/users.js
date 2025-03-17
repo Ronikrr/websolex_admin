@@ -9,18 +9,6 @@ const UserSchema = new mongoose.Schema({
     profileImage: { type: String },
     status: { type: String, default: 'pending' },
     role: { type: String, enum: ['user', 'admin', 'employee'], default: 'user' },
-    workInCompany: {
-        type: String, 
-        enum: [
-            'Digital Marketing',
-            'React.js Developer',
-            'Node.js Developer',
-            'Full Stack Developer',
-            'Shopify Developer',
-            'WordPress Developer',
-        ],
-        default: ''
-    }
 });
 
 const User = mongoose.model('Users', UserSchema);
