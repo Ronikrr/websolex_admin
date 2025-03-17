@@ -10,6 +10,7 @@ require("dotenv").config();
 const app = express();
 const cookieParser = require("cookie-parser");
 const uploads = require("./multer");
+const os = require('os');
 
 // const allowedOrigins = [
 //     'https://websolex-admin-panal.vercel.app',
@@ -296,10 +297,19 @@ app.post("/login", async (req, res) => {
             JWT_SECRET_KEY,
             { expiresIn: "1h" }
         );
+        // ✅ Capture IPv4 address and PC name
+        const ipAddress =
+            req.headers['x-forwarded-for']?.split(',')[0] ||
+            req.socket.remoteAddress?.replace(/^::ffff:/, '') ||
+            req.connection.remoteAddress?.replace(/^::ffff:/, '');
+        const pcName = os.hostname();
+        // ✅ Save login history
         const logintime = await LoginHistory.create({
             userId: user._id,
+            ipAddress,
+            pcName,
             loginTime: new Date()
-        })
+        });
         await logintime.save();
         res.json({ message: "Login successful", token });
     } catch (error) {
