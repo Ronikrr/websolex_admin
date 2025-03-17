@@ -1547,7 +1547,7 @@ app.post("/add", async (req, res) => {
             projectName,
         });
 
-        res.json(saveworklog);
+        res.json({ saveworklog, message: "work added Successfully!", type: "success" });
     } catch (error) {
         res.status(500).json({
             message: "Failed to add work log",
