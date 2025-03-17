@@ -1523,7 +1523,7 @@ app.put("/api/setstatic", async (req, res) => {
 });
 
 // POST: Add work log
-app.post("/add", authenticate, async (req, res) => {
+app.post("/add", async (req, res) => {
     const { userId, email, work, projectName, startTime, endTime, totalHours } =
         req.body;
     const today = new Date().toISOString().split("T")[0];
