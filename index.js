@@ -297,19 +297,13 @@ app.post("/login", async (req, res) => {
             JWT_SECRET_KEY,
             { expiresIn: "1h" }
         );
-        // ✅ Capture IPv4 address and PC name
-        const ipAddress =
-            req.headers['x-forwarded-for']?.split(',')[0] ||
-            req.socket.remoteAddress?.replace(/^::ffff:/, '') ||
-            req.connection.remoteAddress?.replace(/^::ffff:/, '');
-        const pcName = os.hostname();
-        // ✅ Save login history
+
         const logintime = await LoginHistory.create({
             userId: user._id,
-            ipAddress,
-            pcName,
+            ipAddress: req.ip || req.connection.remoteAddress,
+            pcName: os.hostname(),
             loginTime: new Date()
-        });
+        })
         await logintime.save();
         res.json({ message: "Login successful", token });
     } catch (error) {
