@@ -10,7 +10,6 @@ require("dotenv").config();
 const app = express();
 const cookieParser = require("cookie-parser");
 const uploads = require("./multer");
-const os = require('os');
 
 // const allowedOrigins = [
 //     'https://websolex-admin-panal.vercel.app',
@@ -235,27 +234,13 @@ app.post("/api/approve_user", async (req, res) => {
     }
 });
 
-// app.get('/login-history', authenticate, async (req, res) => {
-//     console.log(req.body)
-//     try {
-//         const history = await LoginHistory
-//             .find({ userId: req.user.id })
-//             .sort({ loginTime: -1 })
-//             .populate('userId', 'email');
-//         res.status(200).json(history);
-//     } catch (error) {
-//         console.error('Error fetching login history:', error);
-//         res.status(500).json({ message: 'Internal server error' });
-//     }
-// });
 app.get('/login-history', authenticate, async (req, res) => {
-    console.log(req.body);
+    console.log(req.body)
     try {
         const history = await LoginHistory
             .find({ userId: req.user.id })
-            .sort({ loginTime: -1 })
-            .populate('userId', 'email') // Populate the user's email
-            .select('loginTime logoutTime ipAddress pcName'); // Include new fields
+            .sort({ loginTime: -1 }) 
+            .populate('userId', 'email');
         res.status(200).json(history);
     } catch (error) {
         console.error('Error fetching login history:', error);
@@ -297,11 +282,8 @@ app.post("/login", async (req, res) => {
             JWT_SECRET_KEY,
             { expiresIn: "1h" }
         );
-
         const logintime = await LoginHistory.create({
             userId: user._id,
-            ipAddress: req.ip || req.connection.remoteAddress,
-            pcName: os.hostname(),
             loginTime: new Date()
         })
         await logintime.save();
