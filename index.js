@@ -238,9 +238,9 @@ app.get('/login-history', authenticate, async (req, res) => {
     console.log(req.body)
     try {
         const history = await LoginHistory
-            .find({ userId: req.user.id }) 
-            .sort({ loginTime: -1 }) 
-            .populate('userId', 'email');
+            .find({ userId: req.user.id }) // Fetch login history for the logged-in user
+            .sort({ loginTime: -1 }) // Sort by most recent login
+            .populate('userId', 'email'); // Optional: populate user details
 
         res.status(200).json(history);
     } catch (error) {
