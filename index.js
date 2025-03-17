@@ -238,9 +238,10 @@ app.get('/login-history', authenticate, async (req, res) => {
     console.log(req.body)
     try {
         const history = await LoginHistory
-            .find({ userId: req.user.id })
+            .find({ userId: req.user.id }) 
             .sort({ loginTime: -1 }) 
             .populate('userId', 'email');
+
         res.status(200).json(history);
     } catch (error) {
         console.error('Error fetching login history:', error);
