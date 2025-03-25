@@ -1351,7 +1351,7 @@ app.put("/api/contactdetails", async (req, res) => {
 app.post("/api/socialdetails", async (req, res) => {
     try {
         const { facebook, whatsapp, instagram, linkedin } = req.body;
-        const newSocialDetails = new socialdetailsadd({ facebook, whatsapp, instagram, linkedin });
+        const newSocialDetails = new socialdetails({ facebook, whatsapp, instagram, linkedin });
         const savedSocialDetails = await newSocialDetails.save();
         res.status(201).json({ message: "Social details added successfully", data: savedSocialDetails });
     } catch (error) {
@@ -1363,7 +1363,7 @@ app.post("/api/socialdetails", async (req, res) => {
 // GET: Retrieve Social Details
 app.get("/api/socialdetails", async (req, res) => {
     try {
-        const socialDetails = await socialdetailsadd.findOne();
+        const socialDetails = await socialdetails.findOne();
         if (!socialDetails) {
             return res.status(404).json({ message: "No social details found" });
         }
@@ -1380,7 +1380,7 @@ app.put("/api/socialdetails/:id", async (req, res) => {
         const { facebook, whatsapp, instagram, linkedin } = req.body;
         const { id } = req.params;
 
-        const updatedSocialDetails = await socialdetailsadd.findByIdAndUpdate(
+        const updatedSocialDetails = await socialdetails.findByIdAndUpdate(
             id,
             { facebook, whatsapp, instagram, linkedin },
             { new: true }
