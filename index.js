@@ -11,10 +11,8 @@ const app = express();
 const cookieParser = require("cookie-parser");
 const uploads = require("./multer");
 const http = require('http');
-const { initSocket, getIo } = require('./socket')
 
-const server = http.createServer(app);
-initSocket(server)
+
 
 // const allowedOrigins = [
 //     'https://websolex-admin-panal.vercel.app',
