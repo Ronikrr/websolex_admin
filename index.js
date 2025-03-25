@@ -1284,70 +1284,119 @@ app.put("/api/contactdetails", async (req, res) => {
 
 //////////////////////////////////////////////// social /////////////////
 
+// app.post("/api/socialdetails", async (req, res) => {
+//     console.log(req.body);
+//     try {
+//         const { facebook, whatsapp, instagram, linkedin } = req.body;
+//         const socialdetailsadd = new socialdetails({
+//             facebook,
+//             whatsapp,
+//             instagram,
+//             linkedin,
+//         });
+//         const savedsocialdetailskadd = await socialdetailsadd.save();
+//         res.status(200).json({
+//             message: "Client member created successfully",
+//             member: savedsocialdetailskadd,
+//         });
+//     } catch (error) {
+//         console.error("Error creating client member:", error);
+//         res.status(500).json({ message: "Internal Server Error" });
+//     }
+// });
+
+// app.get("/api/socialdetails", async (req, res) => {
+//     try {
+//         const socialdetailsadd = await socialdetails.findOne();
+//         console.log("Fetched team members:", socialdetailsadd);
+//         res.status(200).json(socialdetailsadd);
+//     } catch (error) {
+//         console.error("Error fetching team clients:", error);
+//         res.status(500).json({ message: "Internal Server Error" });
+//     }
+// });
+// app.put("/api/socialdetails", async (req, res) => {
+//     console.log(req.body);
+//     try {
+//         const { id, facebook, whatsapp, instagram, linkedin } = req.body;
+
+//         // Check if id is provided
+//         if (!id) {
+//             return res.status(400).json({ message: "ID is required for updating" });
+//         }
+
+//         // Prepare update data
+//         const updatedData = { facebook, whatsapp, instagram, linkedin };
+
+//         // Find the contact by ID and update
+//         const updatedSocialDetails = await contactdetails.findByIdAndUpdate(
+//             id,
+//             updatedData,
+//             { new: true }
+//         );
+
+//         if (!updatedSocialDetails) {
+//             return res.status(404).json({ message: "Contact details not found" });
+//         }
+
+//         res.status(200).json({
+//             message: "Client member updated successfully",
+//             member: updatedSocialDetails,
+//         });
+//     } catch (error) {
+//         console.error("Error updating client member:", error);
+//         res.status(500).json({ message: "Internal Server Error" });
+//     }
+// });
 app.post("/api/socialdetails", async (req, res) => {
-    console.log(req.body);
     try {
         const { facebook, whatsapp, instagram, linkedin } = req.body;
-        const socialdetailsadd = new socialdetails({
-            facebook,
-            whatsapp,
-            instagram,
-            linkedin,
-        });
-        const savedsocialdetailskadd = await socialdetailsadd.save();
-        res.status(200).json({
-            message: "Client member created successfully",
-            member: savedsocialdetailskadd,
-        });
+        const newSocialDetails = new socialdetailsadd({ facebook, whatsapp, instagram, linkedin });
+        const savedSocialDetails = await newSocialDetails.save();
+        res.status(201).json({ message: "Social details added successfully", data: savedSocialDetails });
     } catch (error) {
-        console.error("Error creating client member:", error);
+        console.error("Error adding social details:", error);
         res.status(500).json({ message: "Internal Server Error" });
     }
 });
 
+// GET: Retrieve Social Details
 app.get("/api/socialdetails", async (req, res) => {
     try {
-        const socialdetailsadd = await socialdetails.findOne();
-        console.log("Fetched team members:", socialdetailsadd);
-        res.status(200).json(socialdetailsadd);
+        const socialDetails = await socialdetailsadd.findOne();
+        if (!socialDetails) {
+            return res.status(404).json({ message: "No social details found" });
+        }
+        res.status(200).json(socialDetails);
     } catch (error) {
-        console.error("Error fetching team clients:", error);
+        console.error("Error fetching social details:", error);
         res.status(500).json({ message: "Internal Server Error" });
     }
 });
-app.put("/api/socialdetails", async (req, res) => {
-    console.log(req.body);
+
+// PUT: Update Social Details
+app.put("/api/socialdetails/:id", async (req, res) => {
     try {
-        const { id, facebook, whatsapp, instagram, linkedin } = req.body;
+        const { facebook, whatsapp, instagram, linkedin } = req.body;
+        const { id } = req.params;
 
-        // Check if id is provided
-        if (!id) {
-            return res.status(400).json({ message: "ID is required for updating" });
-        }
-
-        // Prepare update data
-        const updatedData = { facebook, whatsapp, instagram, linkedin };
-
-        // Find the contact by ID and update
-        const updatedSocialDetails = await contactdetails.findByIdAndUpdate(
+        const updatedSocialDetails = await socialdetailsadd.findByIdAndUpdate(
             id,
-            updatedData,
+            { facebook, whatsapp, instagram, linkedin },
             { new: true }
         );
 
         if (!updatedSocialDetails) {
-            return res.status(404).json({ message: "Contact details not found" });
+            return res.status(404).json({ message: "Social details not found" });
         }
 
-        res.status(200).json({
-            message: "Client member updated successfully",
-            member: updatedSocialDetails,
-        });
+        res.status(200).json({ message: "Social details updated successfully", data: updatedSocialDetails });
     } catch (error) {
-        console.error("Error updating client member:", error);
+        console.error("Error updating social details:", error);
         res.status(500).json({ message: "Internal Server Error" });
     }
 });
+
 
 ////////////////////////////////////////////////////////////////////// employee //////////////////////////////////////////////
 
